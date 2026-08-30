@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pete-tong-voice-pipeline"
+version = "0.1.0"
+description = "Extract clean Pete Tong speech samples from DJ sets for ElevenLabs voice cloning"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+dependencies = [
+    "yt-dlp>=2024.1.0",
+    "demucs>=4.0.0",
+    "pyannote.audio>=3.1.0",
+    "openai-whisper>=20231117",
+    "librosa>=0.10.0",
+    "soundfile>=0.12.0",
+    "pydub>=0.25.0",
+    "tqdm>=4.66.0",
+    "torch>=2.1.0",
+    "python-dotenv>=1.0.0",
+    "click>=8.1.0",
+]
+
+[project.scripts]
+pt-find-sources = "pete_tong_pipeline.find_sources:main"
+pt-extract = "pete_tong_pipeline.pipeline:main"
+pt-report  = "pete_tong_pipeline.report:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+]

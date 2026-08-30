@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pete Tong Is AI — The Essential Mix</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="desk">
+    <div class="desk-header">
+      <h1>Pete Tong Is AI</h1>
+      <p>The Essential Mix &bull; BBC Radio 1 &bull; Ibiza</p>
+    </div>
+
+    <div class="main-grid">
+
+      <!-- Deck A -->
+      <div class="turntable">
+        <div class="section-label">Deck A</div>
+        <div class="platter-wrap">
+          <div class="platter" id="platterA" onclick="toggleDeck('A')">
+            <div class="platter-grooves"></div>
+            <div class="platter-label" id="labelA">PRESS<br>PLAY</div>
+          </div>
+        </div>
+        <div class="tt-track-label" id="deckAtrack">— No track loaded —</div>
+        <div class="fader-section">
+          <div class="fader-col">
+            <div class="fader-track"><div class="fader-thumb"></div></div>
+            <div class="fader-label">VOL</div>
+          </div>
+          <div class="fader-col">
+            <div class="level-meter" id="meterA"></div>
+            <div class="fader-label">LVL</div>
+          </div>
+        </div>
+        <div class="bpm-display" id="bpmA">128.0</div>
+        <div class="bpm-label">BPM</div>
+        <div class="tt-controls">
+          <button class="tt-btn" onclick="nudgeBpm('A', -0.1)">— 0.1</button>
+          <button class="tt-btn" onclick="nudgeBpm('A', 0.1)">+ 0.1</button>
+        </div>
+      </div>
+
+      <!-- Mixer centre -->
+      <div class="mixer-center">
+        <div class="crossfader-section">
+          <div class="section-label">Crossfader</div>
+          <input type="range" class="crossfader" id="crossfader" min="0" max="100" value="50" />
+          <div class="crossfader-labels"><span>A</span><span>B</span></div>
+        </div>
+        <div class="eq-section">
+          <div class="section-label">EQ</div>
+          <div class="eq-row">
+            <div class="knob-wrap">
+              <div class="knob" id="knobHi" onclick="rotateKnob(this)"></div>
+              <div class="knob-label">HI</div>
+            </div>
+            <div class="knob-wrap">
+              <div class="knob" id="knobMid" onclick="rotateKnob(this)"></div>
+              <div class="knob-label">MID</div>
+            </div>
+            <div class="knob-wrap">
+              <div class="knob" id="knobLo" onclick="rotateKnob(this)"></div>
+              <div class="knob-label">LO</div>
+            </div>
+          </div>
+        </div>
+        <div class="master-section">
+          <div class="section-label">Master</div>
+          <div class="level-meter" id="meterMaster"></div>
+          <div class="bpm-display master-vol" id="masterVol">0 dB</div>
+        </div>
+      </div>
+
+      <!-- Deck B -->
+      <div class="turntable">
+        <div class="section-label">Deck B</div>
+        <div class="platter-wrap">
+          <div class="platter" id="platterB" onclick="toggleDeck('B')">
+            <div class="platter-grooves"></div>
+            <div class="platter-label" id="labelB">PRESS<br>PLAY</div>
+          </div>
+        </div>
+        <div class="tt-track-label" id="deckBtrack">— No track loaded —</div>
+        <div class="fader-section">
+          <div class="fader-col">
+            <div class="fader-track"><div class="fader-thumb"></div></div>
+            <div class="fader-label">VOL</div>
+          </div>
+          <div class="fader-col">
+            <div class="level-meter" id="meterB"></div>
+            <div class="fader-label">LVL</div>
+          </div>
+        </div>
+        <div class="bpm-display" id="bpmB">128.0</div>
+        <div class="bpm-label">BPM</div>
+        <div class="tt-controls">
+          <button class="tt-btn" onclick="nudgeBpm('B', -0.1)">— 0.1</button>
+          <button class="tt-btn" onclick="nudgeBpm('B', 0.1)">+ 0.1</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jingle buttons -->
+    <div class="jingle-section">
+      <div class="section-label">Pete Tong Jingle Buttons</div>
+      <div class="jingle-grid">
+        <button class="jingle-btn" onclick="playJingle(this, 'essential')">Essential Mix</button>
+        <button class="jingle-btn" onclick="playJingle(this, 'petertong')">This is Pete Tong</button>
+        <button class="jingle-btn col-b" onclick="playJingle(this, 'gonepete')">It's All Gone Pete Tong</button>
+        <button class="jingle-btn col-b" onclick="playJingle(this, 'ibiza')">Ibiza!</button>
+        <button class="jingle-btn" onclick="playJingle(this, 'radio1')">BBC Radio One</button>
+        <button class="jingle-btn" onclick="playJingle(this, 'massive')">This is Massive</button>
+        <button class="jingle-btn col-b" onclick="playJingle(this, 'feeling')">What a Feeling</button>
+        <button class="jingle-btn col-b" onclick="playJingle(this, 'bigerror')">Big Error</button>
+      </div>
+    </div>
+
+    <!-- Pete Tong Voice -->
+    <div class="pt-voice-section">
+      <div class="section-label">
+        <span class="led"></span>Pete Tong Voice — Speak as Pete
+      </div>
+      <div class="intro-badge">AI Voice — Browser TTS (ElevenLabs ready)</div>
+      <div class="voice-input-row">
+        <input type="text" class="voice-input" id="voiceText"
+               placeholder="Type what Pete should say..." />
+        <button class="speak-btn" onclick="speakAsPete()">Speak It</button>
+      </div>
+      <div class="voice-options">
+        <span class="section-label" style="margin:0;line-height:2.2;">Intro style:</span>
+        <div class="voice-opt selected" onclick="selectOpt(this,'custom')">Custom text</div>
+        <div class="voice-opt" onclick="selectOpt(this,'trackintro')">Introduce this track</div>
+        <div class="voice-opt" onclick="selectOpt(this,'rave')">Rave it up</div>
+      </div>
+      <div id="lastSpoken" class="last-spoken"></div>
+    </div>
+
+    <!-- Spotify -->
+    <div class="spotify-section">
+      <div class="spotify-header">
+        <div class="spotify-logo">♫</div>
+        <span>Spotify</span>
+        <div class="spotify-api-note">Web Playback SDK — awaiting keys</div>
+      </div>
+      <div id="spotifyConnect">
+        <p class="spotify-hint">Connect your Spotify Premium account to load tracks onto the decks</p>
+        <button class="spotify-connect-btn" onclick="mockSpotifyConnect()">Connect Spotify</button>
+      </div>
+      <div class="spotify-player" id="spotifyPlayer">
+        <div class="intro-badge">Now Playing — Deck A</div>
+        <div class="now-playing">
+          <div class="track-art">♫</div>
+          <div class="track-info">
+            <div class="track-name" id="trackName">Cafe Del Mar (Original Mix)</div>
+            <div class="track-artist" id="trackArtist">Energy 52</div>
+          </div>
+        </div>
+        <div class="waveform" id="waveform"></div>
+        <div class="progress-bar" onclick="seekTrack(event, this)">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="transport">
+          <button class="t-btn" onclick="prevTrack()" aria-label="Previous">⏮</button>
+          <button class="t-btn play" id="playBtn" onclick="togglePlay()" aria-label="Play/Pause">▶</button>
+          <button class="t-btn" onclick="nextTrack()" aria-label="Next">⏭</button>
+        </div>
+        <div class="track-intro-text" id="trackIntro">
+          "Right, this one right here — Cafe Del Mar by Energy 52, the classic '94 Trance
+          anthem that defined a generation of Ibiza sunsets. Absolute weapon."
+        </div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      ◉ PeteTongIsAI.com — Built with love &bull; ElevenLabs + Spotify API slots ready ◉
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

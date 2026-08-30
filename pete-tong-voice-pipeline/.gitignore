@@ -1,0 +1,40 @@
+# Environment
+.env
+*.env.local
+
+# Output — large audio files should not be committed
+pete_tong_samples/
+*.mp3
+*.wav
+*.flac
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+venv/
+.venv/
+env/
+
+# Models — Whisper and Demucs cache here
+~/.cache/torch/
+~/.cache/huggingface/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
