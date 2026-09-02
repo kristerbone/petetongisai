@@ -36,9 +36,6 @@ class Config:
     # ------------------------------------------------------------ credentials
     hf_token: str = os.getenv("HF_TOKEN", "")
 
-    # -------------------------------------------------- runtime state (mutable)
-    target_speaker: str | None = None
-
     def validate(self) -> None:
         if not self.hf_token:
             raise ValueError(

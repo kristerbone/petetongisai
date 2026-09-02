@@ -60,9 +60,10 @@ pip install -e ".[dev]"
 pyannote's models are gated — you need to accept their terms before they'll download.
 
 1. Create an account at https://huggingface.co
-2. Accept terms for both models:
+2. Accept terms for all three gated models (pyannote 4.x's `speaker-diarization-3.1` pipeline pulls a third repo at runtime):
    - https://huggingface.co/pyannote/speaker-diarization-3.1
    - https://huggingface.co/pyannote/segmentation-3.0
+   - https://huggingface.co/pyannote/speaker-diarization-community-1
 3. Get your token: https://huggingface.co/settings/tokens (Read scope)
 4. Add it to your `.env`:
 
@@ -99,13 +100,33 @@ pt-extract \
   --output-dir ./samples
 ```
 
-### 3. Check progress
+### 3. Verify the target speaker before trusting a full run
+
+`pt-extract` auto-picks the speaker with the most total talk time as the
+host. On a music-heavy DJ set this heuristic can be wrong: pyannote clusters
+voices by acoustic similarity, and a recurring sung-vocal texture across many
+different tracks (or stretches of near-silence) can out-total the host's own
+(shorter, more fragmented) commentary. Diarisation runs and caches on the
+first `pt-extract` pass regardless, so check it before trusting the output:
+
+```bash
+pt-probe-speakers --label <source_label>
+```
+
+This transcribes the longest turns of the top few candidate speakers so you
+can tell talk from song by content, then re-run with the correct label:
+
+```bash
+pt-extract --sources <one-source>.json --speaker SPEAKER_23
+```
+
+### 4. Check progress
 
 ```bash
 pt-report
 ```
 
-### 4. Upload to ElevenLabs
+### 5. Upload to ElevenLabs
 
 Once you have 30+ minutes:
 

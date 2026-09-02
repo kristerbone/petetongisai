@@ -13,13 +13,13 @@ import click
 from .config import cfg
 from .diariser import diarise, filter_segments, identify_dominant_speaker
 from .downloader import download
-from .extractor import extract_clips
+from .extractor import extract_clips, merge_adjacent
 from .separator import resample, separate_vocals
 from .sources import SOURCES, Source
 from .transcriber import transcribe
 
 
-def process_source(source: Source) -> list[dict] | None:
+def process_source(source: Source, speaker_override: str | None) -> list[dict] | None:
     label = source.label
     click.echo(f"\n{'='*60}")
     click.echo(f"Processing: {label}")
@@ -41,11 +41,14 @@ def process_source(source: Source) -> list[dict] | None:
     if not diar_path:
         return None
 
-    if not cfg.target_speaker:
-        cfg.target_speaker = identify_dominant_speaker(diar_path)
+    # pyannote's SPEAKER_XX labels are local to each file's own clustering —
+    # they don't identify the same person across different diarisation runs,
+    # so auto-detect fresh per source unless the caller pinned a label.
+    target_speaker = speaker_override or identify_dominant_speaker(diar_path)
 
-    segments = filter_segments(diar_path, cfg.target_speaker)
-    click.echo(f"  Target speaker '{cfg.target_speaker}': {len(segments)} segments")
+    segments = filter_segments(diar_path, target_speaker)
+    segments = merge_adjacent(segments)
+    click.echo(f"  Target speaker '{target_speaker}': {len(segments)} segments after merging")
 
     transcripts_path = transcribe(resampled_path, segments, label)
 
@@ -102,12 +105,9 @@ def main(
     # Override config from CLI args
     if hf_token:
         cfg.hf_token = hf_token
-    if speaker:
-        cfg.target_speaker = speaker
     if whisper_model:
         cfg.whisper_model = whisper_model
     if output_dir:
-        from pathlib import Path
         cfg.output_dir = Path(output_dir)
     if snr is not None:
         cfg.min_snr_db = snr
@@ -127,7 +127,7 @@ def main(
 
     all_manifests: list[list[dict]] = []
     for source in sources:
-        manifest = process_source(source)
+        manifest = process_source(source, speaker)
         if manifest:
             all_manifests.append(manifest)
 

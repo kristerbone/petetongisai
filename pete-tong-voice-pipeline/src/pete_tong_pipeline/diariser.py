@@ -27,14 +27,14 @@ def diarise(audio_path: Path, label: str) -> Path | None:
     print(f"  Diarising speakers for {label}...")
     pipeline = Pipeline.from_pretrained(
         "pyannote/speaker-diarization-3.1",
-        use_auth_token=cfg.hf_token,
+        token=cfg.hf_token,
     )
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     pipeline.to(torch.device(device))
     print(f"    Device: {device}")
 
-    diarisation = pipeline(str(audio_path))
+    diarisation = pipeline(str(audio_path)).speaker_diarization
 
     segments = [
         {

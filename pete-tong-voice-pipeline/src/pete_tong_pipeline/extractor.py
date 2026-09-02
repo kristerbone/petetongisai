@@ -108,10 +108,9 @@ def extract_clips(
     print(f"  Quality gate: {len(kept)} kept, {rejected} rejected  "
           f"(SNR threshold: {cfg.min_snr_db} dB)")
 
-    # --- Merge + split ---
-    merged = merge_adjacent(kept)
+    # --- Split overlong merged segments ---
     final: list[dict] = []
-    for seg in merged:
+    for seg in kept:
         final.extend(split_long(seg))
 
     # --- Write WAV clips ---

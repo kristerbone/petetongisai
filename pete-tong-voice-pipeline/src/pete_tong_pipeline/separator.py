@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 from pathlib import Path
 
 from .config import cfg
@@ -27,9 +28,9 @@ def separate_vocals(audio_path: Path) -> Path | None:
 
     print(f"  Separating vocals with Demucs ({cfg.demucs_model}) — this takes a while...")
     cmd = [
-        "python", "-m", "demucs",
+        sys.executable, "-m", "demucs",
         "--two-stems", "vocals",
-        "--model", cfg.demucs_model,
+        "--name", cfg.demucs_model,
         "--out", str(cfg.output_dir / "separated"),
         str(audio_path),
     ]
