@@ -126,13 +126,28 @@ pt-extract --sources <one-source>.json --speaker SPEAKER_23
 pt-report
 ```
 
-### 5. Upload to ElevenLabs
+### 5. Package for upload
+
+ElevenLabs caps uploads at 25 files and 10MB each. Individual clips are
+usually much smaller than that, which wastes upload slots — pack them into
+larger, balanced files first:
+
+```bash
+pt-package-upload
+```
+
+Writes up to 25 WAVs (each under 10MB, clips spliced in original order with
+a short silence gap) to `pete_tong_samples/elevenlabs_upload/`, plus an
+`upload_manifest.json` describing each merged file's composition. Adjust
+with `--max-files` / `--max-mb` if the platform's limits change.
+
+### 6. Upload to ElevenLabs
 
 Once you have 30+ minutes:
 
 1. ElevenLabs → Voices → Add Voice → **Professional Voice Clone**
-2. Upload all `.wav` files from `pete_tong_samples/clips/`
-3. The `*_manifest.json` files contain transcripts — supply them for better accuracy
+2. Upload the merged `.wav` files from `pete_tong_samples/elevenlabs_upload/`
+3. `upload_manifest.json` has a concatenated transcript per merged file — supply them for better accuracy
 
 ## Configuration
 

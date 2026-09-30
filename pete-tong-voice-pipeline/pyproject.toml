@@ -29,6 +29,7 @@ pt-find-sources    = "pete_tong_pipeline.find_sources:main"
 pt-extract         = "pete_tong_pipeline.pipeline:main"
 pt-report          = "pete_tong_pipeline.report:main"
 pt-probe-speakers  = "pete_tong_pipeline.speaker_probe:main"
+pt-package-upload  = "pete_tong_pipeline.package_upload:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
