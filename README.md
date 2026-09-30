@@ -2,7 +2,7 @@
 
 A DJ mixing desk web experience inspired by Pete Tong — BBC Radio 1 legend and Essential Mix host.
 
-Fan/hobby project. No commercial intent.
+Fan/hobby project, built for fun. Tips cover hosting costs only; any surplus goes to charity.
 
 ## Features (v1)
 
@@ -15,10 +15,10 @@ Fan/hobby project. No commercial intent.
 
 ## Roadmap
 
-- [ ] ElevenLabs voice API — Pete Tong voice clone
-- [ ] Spotify Web Playback SDK — real track playback
-- [ ] AI track introductions from track metadata (Claude API)
-- [ ] Migrate to Svelte + Vite
+- [ ] Self-hosted open voice model — Pete Tong voice clone, chosen by listening test (see `docs/adr/0002-self-hosted-open-voice-model.md`)
+- [ ] Spotify embeds via the iFrame API — real track playback (see `docs/adr/0001-spotify-embeds-not-playback-sdk.md`)
+- [ ] Track IDs — Pete back-announces every two tracks, in lines written from his real shows
+- [ ] Migrate to SvelteKit on AWS (via SST)
 
 ## Running locally
 
@@ -32,15 +32,13 @@ python -m http.server 8080
 
 ## API integration slots
 
-### ElevenLabs
+### Voice
 
-In `app.js`, replace `speakText()` with the stubbed `speakTextElevenLabs()` function.
-Set your voice ID and API key.
+`speakText()` in `app.js` is where synthesised audio replaces browser TTS. The ElevenLabs stub there is superseded — see `docs/adr/0002-self-hosted-open-voice-model.md`.
 
 ### Spotify
 
-Replace `mockSpotifyConnect()` in `app.js` with real OAuth flow + Web Playback SDK init.
-Requires Spotify Premium on the user's account.
+Replace `mockSpotifyConnect()` in `app.js` with Spotify embeds driven by the iFrame API (no OAuth, no Premium requirement). See `docs/adr/0001-spotify-embeds-not-playback-sdk.md`.
 
 ## Related
 

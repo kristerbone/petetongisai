@@ -128,6 +128,8 @@ pt-report
 
 ### 5. Package for upload
 
+> **Dormant.** Steps 5 and 6 are only needed if Pete ever creates and shares an official ElevenLabs clone. The site currently uses a self-hosted open voice model (see `../docs/adr/0002-self-hosted-open-voice-model.md`), for which this pipeline supplies Reference Clips and fine-tuning data.
+
 ElevenLabs caps uploads at 25 files and 10MB each. Individual clips are
 usually much smaller than that, which wastes upload slots — pack them into
 larger, balanced files first:
