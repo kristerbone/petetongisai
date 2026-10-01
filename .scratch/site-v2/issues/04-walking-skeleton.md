@@ -4,9 +4,16 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** in progress: staging is live; production on the domain waits for the GoDaddy nameserver switch (ticket 01)
 
-- [ ] SvelteKit project deployed via SST to AWS; a single command deploys it
-- [ ] The desk looks and behaves as the current static site does
+- [x] SvelteKit project deployed via SST to AWS; a single command deploys it
+- [x] The desk looks and behaves as the current static site does
 - [ ] Served on the confirmed domain (or a staging subdomain) over HTTPS
-- [ ] The old static files and ElevenLabs/Spotify-SDK stubs are removed or retired
+- [x] The old static files and ElevenLabs/Spotify-SDK stubs are removed or retired
+
+## Notes
+
+- The app is in `site/`: SvelteKit 2.70 (not 3.0, which came out 2026-10-01; SST's adapter predates it) on Node 24.
+- Staging: https://d11ahsaa96rwv9.cloudfront.net (`npm run deploy:staging`). Screenshots match v1, and every control was checked in headless Chrome.
+- SST can't read `aws login` sessions, so `site/scripts/with-aws.sh` exports short-lived keys for it.
+- Once `dig +short NS petetongisai.com` shows the awsdns servers, run `npm run deploy` (production stage, domain plus a www redirect, with an ACM certificate through Route 53).

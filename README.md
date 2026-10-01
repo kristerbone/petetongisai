@@ -11,35 +11,25 @@ Fan/hobby project, built for fun. Tips cover hosting costs only; any surplus goe
 - Clickable EQ knobs
 - 8 jingle buttons with Pete Tong catchphrases (browser TTS)
 - Custom text-to-speech voice box — type anything, Pete says it
-- Mocked Spotify player UI (real SDK integration pending)
+- Mocked Spotify player UI (Spotify embeds coming, see ADR 0001)
 
 ## Roadmap
 
 - [ ] Self-hosted open voice model — Pete Tong voice clone, chosen by listening test (see `docs/adr/0002-self-hosted-open-voice-model.md`)
 - [ ] Spotify embeds via the iFrame API — real track playback (see `docs/adr/0001-spotify-embeds-not-playback-sdk.md`)
 - [ ] Track IDs — Pete back-announces every two tracks, in lines written from his real shows
-- [ ] Migrate to SvelteKit on AWS (via SST)
+- [x] Migrate to SvelteKit on AWS (via SST)
 
 ## Running locally
 
-Just open `index.html` in a browser. No build step needed for v1.
+The site lives in `site/` (SvelteKit + SST); see `site/README.md`.
 
 ```bash
-open index.html
-# or
-python -m http.server 8080
+cd site && nvm use && npm install && npm run dev
 ```
-
-## API integration slots
-
-### Voice
-
-`speakText()` in `app.js` is where synthesised audio replaces browser TTS. The ElevenLabs stub there is superseded — see `docs/adr/0002-self-hosted-open-voice-model.md`.
-
-### Spotify
-
-Replace `mockSpotifyConnect()` in `app.js` with Spotify embeds driven by the iFrame API (no OAuth, no Premium requirement). See `docs/adr/0001-spotify-embeds-not-playback-sdk.md`.
 
 ## Related
 
-- `pete-tong-voice-pipeline/` — automated pipeline to extract Pete Tong voice samples for ElevenLabs training
+- `pete-tong-voice-pipeline/`: extracts clean Pete Tong speech clips from his shows
+- `voice-bakeoff/`: the listening test that chose the voice model (ADR 0002)
+- `voice-service/`: Pete's voice on Modal (ticket 08)
