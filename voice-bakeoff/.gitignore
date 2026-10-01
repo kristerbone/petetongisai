@@ -1,0 +1,6 @@
+.venv-*/
+out/
+refs/*.wav
+dataset/
+vendor-cbft/
+__pycache__/

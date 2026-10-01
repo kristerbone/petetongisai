@@ -1,0 +1,47 @@
+[
+ {
+  "id": "ref1",
+  "file": "refs/ref1.wav",
+  "text": "Kicking off with a brand new collaboration between Mo Black, Salif Kata, Bedouin and Fecky Station. It's called Manjoo.",
+  "duration_s": 10.04,
+  "snr_db": 59.8,
+  "source": "pete_tong_month_in_dance_july_2026_0015.wav",
+  "sample_rate": 44100
+ },
+ {
+  "id": "ref2",
+  "file": "refs/ref2.wav",
+  "text": "And we're going to kick off by digging back in the crates to celebrate the birthday of a record that's now 15 years old. Really special when it first came out. And still sounding very special right now.",
+  "duration_s": 13.58,
+  "snr_db": 57.9,
+  "source": "bbc_radio_1_pete_tong_show_ibiza_is_calling_again__0007.wav",
+  "sample_rate": 44100
+ },
+ {
+  "id": "ref3",
+  "file": "refs/ref3.wav",
+  "text": "It's called Lost in a Moment, created by Matthew Dekay when he teamed up with Lee Burrage and it came out on Innovisions.",
+  "duration_s": 7.39,
+  "snr_db": 52.6,
+  "source": "bbc_radio_1_pete_tong_show_ibiza_is_calling_again__0008.wav",
+  "sample_rate": 44100
+ },
+ {
+  "id": "ref4",
+  "file": "refs/ref4.wav",
+  "text": "A track that came out on Maccabi House. It was an essential new tune in September. Personally one of my DJ favorites. It's If You Ever from Convex and Maloko and Gala. Tune.",
+  "duration_s": 13.97,
+  "snr_db": 46.2,
+  "source": "pete_tong_2025_the_year_in_dance_bbc_radio_1_12122_0019.wav",
+  "sample_rate": 44100
+ },
+ {
+  "id": "ref5",
+  "file": "refs/ref5.wav",
+  "text": "Let's kick off with Sebastian Tellier's new tune, featuring Kid Cudi. It's called Amnesia.",
+  "duration_s": 6.02,
+  "snr_db": 25.0,
+  "source": "pete_tong_month_in_dance_january_2026_0014.wav",
+  "sample_rate": 44100
+ }
+]

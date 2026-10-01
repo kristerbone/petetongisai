@@ -7,6 +7,7 @@
 **Status:** ready-for-agent
 
 - [ ] The model runs on a Modal GPU, scaling to zero when idle, using the chosen Reference Clip or fine-tuned weights
+- [ ] Each render is checked with speech recognition against its text and re-rendered (or retried with another Reference Clip) if words are dropped — the chosen fine-tune drops words about a third of the time (see ticket 02)
 - [ ] The site calls it server-side; the Modal token never reaches the browser
 - [ ] A hard monthly spending cap is set on the Modal account, and the site can tell when rendering is refused because of it
 - [ ] The desk's voice box speaks in Pete's voice
