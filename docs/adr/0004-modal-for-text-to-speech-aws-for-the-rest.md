@@ -4,6 +4,6 @@ The site, API, Dedication records and stored audio live on AWS, but text-to-spee
 
 ## Consequences
 
-- The first Intro after a quiet spell waits for a cold start (roughly 10–30s), so Play needs a "warming up the decks" state.
+- The first Intro after a quiet spell waits for a cold start: about 60s measured on an L40S with the fine-tuned Chatterbox (warm renders take about 5.5s). Play needs a "warming up the decks" state.
 - Track IDs are generated while tracks play and stored, so they never wait on a cold start.
 - Two providers, two accounts and an API key between them.
