@@ -66,6 +66,9 @@ export default $config({
       assets: {
         fileOptions: [
           { files: "jingles/*.mp3", contentType: "audio/mpeg", cacheControl: "public,max-age=3600,s-maxage=86400" },
+          { files: "favicon.svg", contentType: "image/svg+xml", cacheControl: "public,max-age=86400" },
+          { files: "favicon.ico", contentType: "image/x-icon", cacheControl: "public,max-age=86400" },
+          { files: "apple-touch-icon.png", contentType: "image/png", cacheControl: "public,max-age=86400" },
           { files: "sign-offs/*.mp3", contentType: "audio/mpeg", cacheControl: "public,max-age=3600,s-maxage=86400" },
           { files: "track-ids/*.mp3", contentType: "audio/mpeg", cacheControl: "public,max-age=3600,s-maxage=86400" },
         ],
