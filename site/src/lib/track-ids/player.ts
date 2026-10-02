@@ -6,7 +6,9 @@ import { TrackIdSession, type Announcement, type Piece } from './session';
 
 const POLL_MS = 2000;
 const GIVE_UP_MS = 180_000; // a cold GPU takes about a minute; past this, a generic line
-const WAIT_AT_TRACK_START_MS = 8000; // the music is paused while Pete waits for a line
+// A line not ready at the track change: the music plays on, and Pete comes in once it's ready,
+// up to this far into the track; after that, a generic line
+const LATE_LIMIT_MS = 30_000;
 const GAP_S = 0.15; // between pieces
 const TARGET_RMS = 0.1; // the rendered lines come out quieter or louder than the pre-rendered pieces
 const CLOSER_ODDS = 1 / 3;
@@ -15,7 +17,8 @@ const pick = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
 
 /**
  * Track IDs (ticket 13): follows the embed's track starts, fetches each track's line while it
- * plays, and when one is due pauses the music, plays Pete's back-announcement and resumes.
+ * plays (and, in a playlist, the next track's too), and when one is due pauses the music, plays
+ * Pete's back-announcement and resumes.
  * Pieces are joined in Web Audio, so they play back to back without gaps or a fresh tap.
  */
 export class TrackIds {
@@ -30,8 +33,18 @@ export class TrackIds {
 	private lastMatch = -1;
 	private matched = new Set<number>();
 	private unmatched = 0;
+	// Settles when the next track starts, so a late Track ID stops waiting on a skip
+	private nextStart!: Promise<void>;
+	private onNextStart = () => {};
 
-	constructor(private embed: SpotifyEmbed) {}
+	constructor(private embed: SpotifyEmbed) {
+		this.armNextStart();
+	}
+
+	private armNextStart() {
+		this.onNextStart();
+		this.nextStart = new Promise((resolve) => (this.onNextStart = resolve));
+	}
 
 	/** Call inside the Play tap: the browser only lets audio start from one. */
 	unlock() {
@@ -61,16 +74,37 @@ export class TrackIds {
 			if (generation !== this.generation) return;
 			const step = this.session.trackStarted(trackId);
 			if (!step) return;
+			this.armNextStart();
 			this.line(step.prepare);
+			await this.renderAhead();
 			if (step.announce) this.announce(step.announce);
 		});
+	}
+
+	/**
+	 * Start the next track's line now, guessing it's the next in the playlist, so it's ready by the
+	 * time it's due. A skip or shuffle wastes the render, but the line stays cached for everyone.
+	 */
+	private async renderAhead() {
+		const list = await this.playlist;
+		const next = this.lastMatch + 1;
+		if (!list || next >= list.length || this.matched.has(next)) return;
+		this.line({ trackId: list[next].trackId, form: this.session.nextForm() });
 	}
 
 	/** The track's id, or a placeholder (named with a generic line) when it can't be told. */
 	private async identify(uri: string, durationMs: number): Promise<string> {
 		const direct = uri.match(/^spotify:track:([A-Za-z0-9]{22})$/)?.[1];
-		if (direct) return direct;
 		const list = await this.playlist;
+		if (direct) {
+			// Signed out: the embed names the track; find it in the playlist anyway, for rendering ahead
+			const i = list?.findIndex((t) => t.trackId === direct) ?? -1;
+			if (i >= 0) {
+				this.lastMatch = i;
+				this.matched.add(i);
+			}
+			return direct;
+		}
 		const i = list ? matchTrack(list, durationMs, this.lastMatch, this.matched) : null;
 		if (i === null) return `unknown-${++this.unmatched}`;
 		this.lastMatch = i;
@@ -103,7 +137,11 @@ export class TrackIds {
 
 	private announce(a: Announcement) {
 		const generation = this.generation;
+		const skipped = this.nextStart; // the start after this one, not whichever is latest by then
 		this.queue = this.queue.then(async () => {
+			if (generation !== this.generation) return;
+			// Mid-session the music plays on while Pete's lines finish: late, but named
+			if (!a.atEnd) await this.ready(a, skipped);
 			if (generation !== this.generation) return;
 			const pause = !a.atEnd;
 			if (pause) this.embed.pause({ hold: true });
@@ -119,9 +157,16 @@ export class TrackIds {
 		});
 	}
 
+	/** Until the Track ID's lines are ready, LATE_LIMIT_MS passes, or the listener skips to another track. */
+	private ready(a: Announcement, skipped: Promise<void>): Promise<unknown> {
+		const lines = Promise.all([this.line(a.lead), a.follow && this.line(a.follow)]);
+		return Promise.race([lines, new Promise((r) => setTimeout(r, LATE_LIMIT_MS)), skipped]);
+	}
+
 	/** opener + newest track + joiner + older track (+ a closer, one time in three, mid-session) */
 	private async assemble(a: Announcement): Promise<AudioBuffer[]> {
-		const wait = a.atEnd ? GIVE_UP_MS : WAIT_AT_TRACK_START_MS;
+		// Mid-session ready() has already waited: whatever isn't ready now gets a generic line
+		const wait = a.atEnd ? GIVE_UP_MS : 0;
 		const [lead, follow] = await Promise.all([this.lineOrGeneric(a.lead, wait), a.follow && this.lineOrGeneric(a.follow, wait)]);
 		const parts = [this.piece(pick(PIECES.openers).id), lead];
 		if (follow) parts.push(this.piece(pick(PIECES.joiners).id), follow);

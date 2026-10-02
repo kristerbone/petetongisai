@@ -19,7 +19,8 @@
 - How the embed behaves (headless Chrome, signed out): `playback_started` fires once per track and not on resume. Previews are now 15 to 30 seconds long. When the music runs out, the embed sends no event: updates just stop at the end of the track. `embed.ts` treats "position at the end, then no update for 2.5s" (or paused at the end) as ended.
 - Spotify's own editorial playlists (`37i9…`) didn't load in the embed for a signed-out visitor; user playlists did. They also 404 on the app-only API, but Track IDs only look up tracks.
 - Each track is named once per session, as the newest track ("lead"), as the older one ("follow"), or as "first" when it opened the session. Its template is picked by hashing the track id, so there are at most three renders per track, ever. A playlist ending on an odd track renders that track's lead line then, after the music has stopped.
-- At a track start, Pete waits up to 8s for a line, then says a generic one. With a cold GPU (~60s) and short previews, the first Track ID of a session will often be generic.
+- Lines are rendered ahead: when a playlist track starts, the next track in the playlist's order gets its line started too, in the form it will need (`session.nextForm()`). A skip or shuffle wastes a render, but the line stays cached.
+- If a line still isn't ready when a Track ID is due, the music plays on and Pete comes in as soon as it's ready, up to 30s into the track (`LATE_LIMIT_MS`). He stops waiting at once if the listener skips to another track. Whatever isn't ready by then gets a generic line.
 - New renders count against a per-IP limit of 60 an hour (cached lines are free). Past it, Pete says generic lines.
 - Titles lose "(Original Mix)", "(Radio Edit)" and remaster tags; a name over 90 characters gets a generic line. Track names aren't run through the Haiku check that Intros get.
 - The 25 pre-rendered pieces are in `static/track-ids/`, rendered by `scripts/render-lines.mjs` (which used to be `render-jingles.mjs`). All passed the dropped-words check; "That one's a mystery… even to me" took a third Reference Clip (coverage 0.83), so listen to it.
@@ -31,3 +32,5 @@
 - MusicBrainz had no ISRC for about half of an older reggae/ska playlist. Deezer's public ISRC lookup (no key) found 9 of 9 of those misses, so the owner chose MusicBrainz first, then Deezer. **Deezer's terms ask for attribution: ticket 07's About page should credit MusicBrainz and Deezer.**
 - An artist credit too long to say falls back to its first artist ("House of Pain" for a five-artist "Jump Around").
 - Verified by the owner signed in on Chrome: track changes were matched correctly and the Track ID played at track 3.
+- Owner testing on a 109-song playlist (2026-10-02): all 15 tracks played were identified and named correctly. The generic lines came from timing: fast skipping, and my redeploys and long test renders tying up the single GPU. That led to the render-ahead and late Track IDs above.
+- Spotify's embed page lists at most 100 tracks, so songs 101+ of a longer playlist can't be named (generic lines). Spotify's public playlist page gives the real count (`music:song_count`).

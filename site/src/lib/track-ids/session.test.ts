@@ -36,6 +36,15 @@ describe('TrackIdSession', () => {
 		expect(odd.ended()).toEqual({ lead: { trackId: 't3', form: 'lead' }, follow: null, atEnd: true });
 	});
 
+	it('knows the line the next track will need, so it can be rendered ahead', () => {
+		const s = new TrackIdSession(false);
+		expect(s.nextForm()).toBe('first');
+		s.trackStarted('t1');
+		expect(s.nextForm()).toBe('lead');
+		s.trackStarted('t2');
+		expect(s.nextForm()).toBe('follow');
+	});
+
 	it('ignores the same track starting again (a resume or replay)', () => {
 		const s = new TrackIdSession(true);
 		s.trackStarted('t1');

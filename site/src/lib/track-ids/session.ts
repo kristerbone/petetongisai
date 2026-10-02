@@ -21,12 +21,20 @@ export class TrackIdSession {
 		// Resuming or replaying the same track isn't a new start
 		if (this.played.at(-1)?.trackId === trackId) return null;
 		const n = this.played.length + 1;
-		const form: Form = this.singleTrack || n % 2 === 0 ? 'lead' : n === 1 ? 'first' : 'follow';
-		const prepare = { trackId, form };
+		const prepare = { trackId, form: this.formFor(n) };
 		this.played.push(prepare);
 		if (n < 3 || n % 2 === 0) return { prepare, announce: null };
 		this.announced = n - 1;
 		return { prepare, announce: { lead: this.played[n - 2], follow: this.played[n - 3], atEnd: false } };
+	}
+
+	/** The line the next new track will need, so it can be rendered before that track starts. */
+	nextForm(): Form {
+		return this.formFor(this.played.length + 1);
+	}
+
+	private formFor(n: number): Form {
+		return this.singleTrack || n % 2 === 0 ? 'lead' : n === 1 ? 'first' : 'follow';
 	}
 
 	/** The music ended: announce any tracks not yet named. A lone leftover is named as the newest. */
