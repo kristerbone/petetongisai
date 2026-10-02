@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { parseSpotifyLink } from '$lib/spotify/link';
 	import { SpotifyEmbed } from '$lib/spotify/embed';
+	import { TrackIds } from '$lib/track-ids/player';
 	import { renderIntro, type IntroStatus } from './intro';
 	import { onJingle, pete } from './pete-audio';
 	import { decks } from './state.svelte';
@@ -16,6 +17,7 @@
 	let stage = $state<'idle' | IntroStatus | 'intro' | 'music'>('idle');
 	let embedEl: HTMLDivElement;
 	let embed: SpotifyEmbed;
+	let trackIds: TrackIds;
 	let introAudio: HTMLAudioElement;
 	let hasEmbed = $state(false);
 	// The last Intro that played, which Send can turn into a Dedication
@@ -40,8 +42,10 @@
 				// Someone pressed play on the embed itself mid-Intro: Pete never talks over the music
 				if (playing && !introAudio.paused) introAudio.pause();
 			},
-			onTrackStart: (uri) => console.debug('track started', uri)
+			onTrackStart: (uri) => trackIds.trackStarted(uri),
+			onEnded: () => trackIds.ended()
 		});
+		trackIds = new TrackIds(embed);
 		// A Jingle pauses the music and picks it back up afterwards
 		let resumeAfterJingle = false;
 		return onJingle((speaking) => {
@@ -60,6 +64,7 @@
 		if (busy || linkInvalid || (!line && !parsed)) return;
 		message = '';
 		sentUrl = '';
+		trackIds.unlock();
 
 		if (line) {
 			introAudio.src = SILENCE;
@@ -82,7 +87,7 @@
 			introAudio.src = URL.createObjectURL(result.audio);
 			const finished = new Promise((resolve) => (introAudio.onended = introAudio.onpause = resolve));
 			try {
-				pete.introPlaying = true;
+				pete.speaking = true;
 				await introAudio.play();
 				await finished;
 			} catch (e) {
@@ -91,13 +96,14 @@
 				stage = 'idle';
 				return;
 			} finally {
-				pete.introPlaying = false;
+				pete.speaking = false;
 			}
 		}
 
 		if (parsed) {
 			stage = 'music';
 			hasEmbed = true;
+			trackIds.start(parsed.uri);
 			await embed.load(parsed.uri);
 			embed.play();
 		}

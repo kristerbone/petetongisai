@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { SpotifyEmbed } from '$lib/spotify/embed';
+	import { TrackIds } from '$lib/track-ids/player';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -9,15 +10,21 @@
 	let message = $state('');
 	let embedEl = $state<HTMLDivElement>();
 	let embed: SpotifyEmbed;
+	let trackIds: TrackIds;
 	let hasEmbed = $state(false);
 
 	onMount(() => {
-		embed = new SpotifyEmbed(embedEl!);
+		embed = new SpotifyEmbed(embedEl!, {
+			onTrackStart: (uri) => trackIds.trackStarted(uri),
+			onEnded: () => trackIds.ended()
+		});
+		trackIds = new TrackIds(embed);
 	});
 
 	async function play() {
 		if (data.faded || stage !== 'ready') return;
 		stage = 'intro';
+		trackIds.unlock();
 		// Created inside the tap, so the browser lets it play
 		const audio = new Audio(`/d/${data.id}/intro.wav`);
 		try {
@@ -31,6 +38,7 @@
 		if (data.spotifyUri) {
 			stage = 'music';
 			hasEmbed = true;
+			trackIds.start(data.spotifyUri);
 			await embed.load(data.spotifyUri);
 			embed.play();
 		} else {

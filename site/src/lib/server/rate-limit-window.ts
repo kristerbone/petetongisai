@@ -1,4 +1,6 @@
 export const PLAYS_PER_HOUR = 5;
+// A playlist of full tracks starts about 20 an hour; previews (about 15s each) start more, often already cached
+export const TRACK_ID_RENDERS_PER_HOUR = 60;
 const WINDOW_MS = 60 * 60 * 1000;
 
 /** Sliding one-hour window: decide whether one more hit is allowed, given earlier hit times (ms). */

@@ -3,7 +3,7 @@
 	import JINGLES from './jingles.json';
 	import { jingleSpeaking, pete } from './pete-audio';
 
-	// Rendered once in Pete's voice by scripts/render-jingles.mjs; served as static files
+	// Rendered once in Pete's voice by scripts/render-lines.mjs; served as static files
 	let players: Record<string, HTMLAudioElement> = {};
 	let current: HTMLAudioElement | null = null;
 	let flashing = $state<string | null>(null);
@@ -22,7 +22,7 @@
 	});
 
 	function play(id: string) {
-		if (pete.introPlaying) return;
+		if (pete.speaking) return;
 		flashing = id;
 		setTimeout(() => (flashing = null), 300);
 		current?.pause();

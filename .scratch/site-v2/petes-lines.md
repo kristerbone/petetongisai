@@ -19,7 +19,7 @@ Phrases and patterns drawn from the transcripts, as models for the style (none o
 
 ## 1. Jingles (desk buttons): approved
 
-Eight buttons, replacing the old ones that referenced the BBC, Radio 1 and the Essential Mix. They're laid out in two rows of four, alternating the hype lines with the AI wordplay. The live copy, with the exact text sent to the voice, is `site/src/lib/desk/jingles.json`; `site/scripts/render-jingles.mjs` renders it.
+Eight buttons, replacing the old ones that referenced the BBC, Radio 1 and the Essential Mix. They're laid out in two rows of four, alternating the hype lines with the AI wordplay. The live copy, with the exact text sent to the voice, is `site/src/lib/desk/jingles.json`; `site/scripts/render-lines.mjs` renders it.
 
 **Saying "AI":** the voice gets "A.I." (with dots). "AI" and "A I" didn't come out right, and "A AYE" got spelled out letter by letter, since capitals read as an acronym. "HQ" is sent as "H Q".
 

@@ -37,9 +37,15 @@ function loadApi(): Promise<IFrameAPI> {
 export type EmbedEvents = {
 	/** The embed started or stopped playing (the decks reflect this). */
 	onPlayingChange?: (playing: boolean) => void;
-	/** A track began playing; Track IDs (ticket 13) build on this. */
+	/** A track began playing (not a resume); Track IDs (ticket 13) build on this. */
 	onTrackStart?: (uri: string) => void;
+	/** The last track finished and nothing else is coming. */
+	onEnded?: () => void;
 };
+
+// The embed sends no event when the music runs out: updates just stop at the end of the track
+const NEAR_END_MS = 1500;
+const ENDED_AFTER_MS = 2500;
 
 export class SpotifyEmbed {
 	private controller: EmbedController | null = null;
@@ -47,6 +53,7 @@ export class SpotifyEmbed {
 	// The embed ignores pause() while it's still starting a track, so a wanted pause is re-sent
 	// on every update that says it's playing, until resume()
 	private holdPaused = false;
+	private endTimer: ReturnType<typeof setTimeout> | undefined;
 	playing = false;
 
 	constructor(
@@ -66,8 +73,12 @@ export class SpotifyEmbed {
 			api.createController(this.el, { uri, width: '100%', height: 152 }, (c) => {
 				this.controller = c;
 				c.addListener('ready', () => resolve());
-				c.addListener('playback_started', (e) => this.events.onTrackStart?.(e.data.playingURI));
+				c.addListener('playback_started', (e) => {
+					clearTimeout(this.endTimer);
+					this.events.onTrackStart?.(e.data.playingURI);
+				});
 				c.addListener('playback_update', (e) => {
+					this.watchForEnd(e.data);
 					const playing = !e.data.isPaused;
 					if (playing && this.holdPaused) c.pause();
 					if (playing !== this.playing) {
@@ -78,6 +89,13 @@ export class SpotifyEmbed {
 			});
 		});
 		return this.ready;
+	}
+
+	/** At the end of a track, either it pauses there or updates stop; if no next track starts, it's over. */
+	private watchForEnd({ isPaused, duration, position }: PlaybackUpdate) {
+		clearTimeout(this.endTimer);
+		if (!duration || position < duration - NEAR_END_MS) return;
+		this.endTimer = setTimeout(() => this.events.onEnded?.(), isPaused ? 0 : ENDED_AFTER_MS);
 	}
 
 	/**

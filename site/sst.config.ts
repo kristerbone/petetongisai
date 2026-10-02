@@ -20,6 +20,9 @@ export default $config({
     const modalTokenId = new sst.Secret("ModalProxyTokenId");
     const modalTokenSecret = new sst.Secret("ModalProxyTokenSecret");
     const anthropicKey = new sst.Secret("AnthropicApiKey");
+    // App-only Spotify credentials, for looking up a track's ISRC (ticket 13)
+    const spotifyClientId = new sst.Secret("SpotifyClientId");
+    const spotifyClientSecret = new sst.Secret("SpotifyClientSecret");
 
     // Play-with-text hits per IP (ticket 10); items expire on their own
     const rateLimits = new sst.aws.Dynamo("RateLimits", {
@@ -39,6 +42,16 @@ export default $config({
       lifecycle: [{ id: "expire-intros", prefix: "intros/", expiresIn: "1 day" }],
     });
 
+    // Track IDs (ticket 13): "name#<track>" holds a track's MusicBrainz name (a miss expires to be
+    // retried); "line#<track>#<form>" says whether its line is ready or which render to collect
+    const trackIds = new sst.aws.Dynamo("TrackIds", {
+      fields: { key: "string" },
+      primaryIndex: { hashKey: "key" },
+      ttl: "expires",
+    });
+    // Each track's rendered line, kept for everyone who plays it
+    const trackIdAudio = new sst.aws.Bucket("TrackIdAudio");
+
     // Whenever a Dedication record goes (removed, or faded by TTL), delete its audio too
     dedications.subscribe(
       "Fader",
@@ -48,11 +61,12 @@ export default $config({
 
     // Only production gets the real domain; other stages use the CloudFront URL
     const site = new sst.aws.SvelteKit("Site", {
-      link: [anthropicKey, rateLimits, intros, dedications],
+      link: [anthropicKey, spotifyClientId, spotifyClientSecret, rateLimits, intros, dedications, trackIds, trackIdAudio],
       // SST's type lookup doesn't know .mp3, and Safari won't play audio served as octet-stream
       assets: {
         fileOptions: [
           { files: "jingles/*.mp3", contentType: "audio/mpeg", cacheControl: "public,max-age=3600,s-maxage=86400" },
+          { files: "track-ids/*.mp3", contentType: "audio/mpeg", cacheControl: "public,max-age=3600,s-maxage=86400" },
         ],
       },
       environment: {

@@ -34,6 +34,22 @@ declare module "sst" {
       "type": "sst.aws.SvelteKit"
       "url": string
     }
+    "SpotifyClientId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "SpotifyClientSecret": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "TrackIdAudio": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "TrackIds": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
   }
 }
 

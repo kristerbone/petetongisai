@@ -1,0 +1,56 @@
+{
+	"openers": [
+		{ "id": "so-good", "text": "So good." },
+		{ "id": "love-it", "text": "Love it." },
+		{ "id": "tune", "text": "Tune." },
+		{ "id": "oh-yes", "text": "Oh, yes." },
+		{ "id": "what-a-record", "text": "What a record." },
+		{ "id": "big-big-tune", "text": "Big, big tune." },
+		{ "id": "lovely-stuff", "text": "Lovely stuff." },
+		{ "id": "ooh-i-like-that", "text": "Ooh, I like that." }
+	],
+	"joiners": [
+		{ "id": "and-before-that", "text": "And before that," },
+		{ "id": "before-that", "text": "Before that," },
+		{ "id": "and-just-before-that", "text": "And just before that," },
+		{ "id": "and-ahead-of-that-one", "text": "And ahead of that one," }
+	],
+	"closers": [
+		{ "id": "nonstop-back-to-back", "text": "Nonstop, back to back." },
+		{ "id": "we-keep-it-moving", "text": "We keep it moving." },
+		{ "id": "closer-turn-it-up", "text": "Turn it up." },
+		{ "id": "here-we-go", "text": "Here we go." },
+		{ "id": "going-back-in", "text": "And we're going back in." }
+	],
+	"genericLeads": [
+		{ "id": "lead-unreleased", "text": "Unreleased heat, that one. Don't ask me for the ID." },
+		{ "id": "lead-white-label", "text": "Proper white label, that. No ID for you, I'm afraid." },
+		{ "id": "lead-mystery", "text": "That one's a mystery… even to me. Love it though." },
+		{ "id": "lead-no-name", "text": "No name on that one. Just vibes." }
+	],
+	"genericFollows": [
+		{ "id": "follow-unreleased", "text": "a little something unreleased." },
+		{ "id": "follow-white-label", "text": "a white label I'm keeping to myself." },
+		{ "id": "follow-mystery", "text": "a mystery tune. Still love it." },
+		{ "id": "follow-no-name", "text": "something with no name, just vibes." }
+	],
+	"leads": [
+		"It's called {title}, from {artist}.",
+		"That's {title} from {artist}.",
+		"{artist} there, with {title}.",
+		"Tasty tune from {artist}. It's called {title}.",
+		"That was {artist} with {title}. Tune.",
+		"{title}, from {artist}. Love it.",
+		"Proper weapon, that. {title}, from {artist}.",
+		"A bit of {artist} there, with {title}.",
+		"{artist}, and a track called {title}.",
+		"That's the sound of {artist}, with {title}."
+	],
+	"follows": [
+		"{title}, from {artist}.",
+		"{artist}, with {title}.",
+		"{title}, courtesy of {artist}.",
+		"we had {artist}, and {title}."
+	],
+	"firsts": ["we kicked off with {title}, from {artist}."]
+}

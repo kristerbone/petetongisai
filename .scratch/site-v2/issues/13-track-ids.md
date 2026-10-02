@@ -4,11 +4,22 @@
 
 **Blocked by:** 03, 06, 08
 
-**Status:** ready-for-agent
+**Status:** done on staging
 
-- [ ] Every second track start, the embed pauses, the Track ID plays, then playback resumes
-- [ ] A single-track play gets one Track ID at the end
-- [ ] Track names come from the track's ISRC (via Spotify's app-only track lookup) matched in MusicBrainz; Spotify's own title is never passed to the voice model
-- [ ] No MusicBrainz match gives a generic line instead
-- [ ] Each track's line is rendered once while it plays and cached for everyone; joining phrases are pre-rendered
-- [ ] When the spending cap is hit, generic lines are used until it resets and music keeps playing
+- [x] Every second track start, the embed pauses, the Track ID plays, then playback resumes
+- [x] A single-track play gets one Track ID at the end
+- [x] Track names come from the track's ISRC (via Spotify's app-only track lookup) matched in MusicBrainz; Spotify's own title is never passed to the voice model
+- [x] No MusicBrainz match gives a generic line instead
+- [x] Each track's line is rendered once while it plays and cached for everyone; joining phrases are pre-rendered
+- [x] When the spending cap is hit, generic lines are used until it resets and music keeps playing
+
+## Notes
+
+- Pausing, playing and resuming, plus the end-of-music Track ID, were checked headless against the real embed with the generic lines. On staging, the server path worked end to end: "One More Time" got the ISRC from Spotify, then "Daft Punk / One More Time" from MusicBrainz, and rendered "That's One More Time from Daft Punk." in about 66s from a cold GPU. After that it comes from the cache in about 0.4s. An unknown track gets 204 `no-match`. The SST Secrets `SpotifyClientId` and `SpotifyClientSecret` are set on staging and production.
+- How the embed behaves (headless Chrome, signed out): `playback_started` fires once per track and not on resume. Previews are now 15 to 30 seconds long. When the music runs out, the embed sends no event: updates just stop at the end of the track. `embed.ts` treats "position at the end, then no update for 2.5s" (or paused at the end) as ended.
+- Spotify's own editorial playlists (`37i9…`) didn't load in the embed for a signed-out visitor; user playlists did. They also 404 on the app-only API, but Track IDs only look up tracks.
+- Each track is named once per session, as the newest track ("lead"), as the older one ("follow"), or as "first" when it opened the session. Its template is picked by hashing the track id, so there are at most three renders per track, ever. A playlist ending on an odd track renders that track's lead line then, after the music has stopped.
+- At a track start, Pete waits up to 8s for a line, then says a generic one. With a cold GPU (~60s) and short previews, the first Track ID of a session will often be generic.
+- New renders count against a per-IP limit of 60 an hour (cached lines are free). Past it, Pete says generic lines.
+- Titles lose "(Original Mix)", "(Radio Edit)" and remaster tags; a name over 90 characters gets a generic line. Track names aren't run through the Haiku check that Intros get.
+- The 25 pre-rendered pieces are in `static/track-ids/`, rendered by `scripts/render-lines.mjs` (which used to be `render-jingles.mjs`). All passed the dropped-words check; "That one's a mystery… even to me" took a third Reference Clip (coverage 0.83), so listen to it.

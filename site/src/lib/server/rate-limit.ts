@@ -1,19 +1,23 @@
 import { ConditionalCheckFailedException, DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { Resource } from 'sst';
-import { decide } from './rate-limit-window';
+import { decide, PLAYS_PER_HOUR, TRACK_ID_RENDERS_PER_HOUR } from './rate-limit-window';
 
 const db = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
 /** Record one Play-with-text for this IP; returns whether it's within the hourly limit. */
-export async function hitPlayLimit(ip: string) {
-	const key = `play#${ip}`;
+export const hitPlayLimit = (ip: string) => hitLimit(`play#${ip}`, PLAYS_PER_HOUR);
+
+/** Record one new Track ID render for this IP (cached lines don't count). */
+export const hitTrackIdLimit = (ip: string) => hitLimit(`track-id#${ip}`, TRACK_ID_RENDERS_PER_HOUR);
+
+async function hitLimit(key: string, limit: number) {
 	for (let attempt = 0; attempt < 3; attempt++) {
 		const { Item } = await db.send(
 			new GetCommand({ TableName: Resource.RateLimits.name, Key: { key }, ConsistentRead: true })
 		);
 		const now = Date.now();
-		const result = decide(Item?.hits ?? [], now);
+		const result = decide(Item?.hits ?? [], now, limit);
 		if (!result.allowed) return result;
 		try {
 			await db.send(
