@@ -710,3 +710,6 @@ body {
 .page-body p, .page-body ul { margin-bottom: 12px; }
 .page-body ul { padding-left: 20px; }
 .page-body a { color: #ff6b35; }
+.money-btn.soon { opacity: 0.45; cursor: default; }
+.money-btn.soon:hover { background: #ff6b35; }
+.money-btn.charity.soon:hover { background: #2a2a2a; }

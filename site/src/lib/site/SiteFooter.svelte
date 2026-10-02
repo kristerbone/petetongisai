@@ -1,15 +1,14 @@
 <script lang="ts">
-	import { CHARITY, TIP_URL } from './money';
+	import MoneyButtons from './MoneyButtons.svelte';
+	import { CHARITY } from './money';
+
+	/** About shows the buttons in its own section, so it leaves them out here. */
+	let { buttons = true }: { buttons?: boolean } = $props();
 </script>
 
 <!-- Desk, About and Privacy only: Dedication pages carry no money buttons (ticket 07) -->
 <footer class="site-footer">
-	{#if TIP_URL || CHARITY}
-		<div class="money-buttons">
-			{#if TIP_URL}<a class="money-btn" href={TIP_URL} rel="noopener" target="_blank">☕ Tip the hosting costs</a>{/if}
-			{#if CHARITY}<a class="money-btn charity" href={CHARITY.url} rel="noopener" target="_blank">♥ Give to {CHARITY.name}</a>{/if}
-		</div>
-	{/if}
+	{#if buttons}<MoneyButtons />{/if}
 	<p class="disclaimer">
 		Not affiliated with {CHARITY ? `Pete Tong, the BBC or ${CHARITY.name}` : 'Pete Tong or the BBC'}. All voices are
 		AI-generated.
