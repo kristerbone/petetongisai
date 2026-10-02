@@ -4,11 +4,11 @@
 
 **Blocked by:** 01
 
-**Status:** in progress: staging is live; production on the domain waits for the GoDaddy nameserver switch (ticket 01)
+**Status:** done: production is live at https://petetongisai.com (2026-10-02)
 
 - [x] SvelteKit project deployed via SST to AWS; a single command deploys it
 - [x] The desk looks and behaves as the current static site does
-- [ ] Served on the confirmed domain (or a staging subdomain) over HTTPS
+- [x] Served on the confirmed domain (or a staging subdomain) over HTTPS
 - [x] The old static files and ElevenLabs/Spotify-SDK stubs are removed or retired
 
 ## Notes
@@ -17,3 +17,5 @@
 - Staging: https://d11ahsaa96rwv9.cloudfront.net (`npm run deploy:staging`). Screenshots match v1, and every control was checked in headless Chrome.
 - SST can't read `aws login` sessions, so `site/scripts/with-aws.sh` exports short-lived keys for it.
 - Once `dig +short NS petetongisai.com` shows the awsdns servers, run `npm run deploy` (production stage, domain plus a www redirect, with an ACM certificate through Route 53).
+
+- Production deployed 2026-10-02: https://petetongisai.com, with an ACM certificate valid to April 2027 and `www` redirecting to the apex. Checked over HTTPS: every page, the favicon, Jingles and Sign-offs, the playlist API, and a full Track ID render (Spotify, MusicBrainz, Modal). Production has its own tables and buckets, separate from staging, and keeps the public IP limits (5 Plays, 60 new Track ID lines an hour).
