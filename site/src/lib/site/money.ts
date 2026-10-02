@@ -5,7 +5,7 @@
  */
 
 /** The owner's Buy Me a Coffee page, for the hosting costs: a plain link, no widget or cookies. */
-export const TIP_URL: string | null = null;
+export const TIP_URL: string | null = "https://www.buymeacoffee.com/petetongisai";
 
 /** The charity, once it has agreed to be named (ticket 05), and its official fundraising page. */
 export const CHARITY: { name: string; url: string } | null = null;
