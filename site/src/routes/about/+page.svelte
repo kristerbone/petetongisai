@@ -51,9 +51,9 @@
 			peaceful. Birthdays, best mates, first dances, Friday nights, and the friend who still owes you a tenner.
 		</p>
 		<p>
-			If you feel this adventure is worthy, we're working on ways for you to chip in: a coffee towards the hosting
-			costs (mostly the GPU that makes Pete's voice), or a donation to a charity we're lining up. Charity donations will
-			go straight to the charity, never through us.
+			If you feel this adventure is worthy, you can buy us a coffee towards the hosting costs (mostly the GPU that
+			makes Pete's voice), or give to Shelter, the housing and homelessness charity. Donations to Shelter go straight
+			to them, never through us, and this site isn't affiliated with them.
 		</p>
 		<MoneyButtons />
 

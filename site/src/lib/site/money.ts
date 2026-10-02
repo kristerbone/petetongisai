@@ -8,4 +8,4 @@
 export const TIP_URL: string | null = "https://www.buymeacoffee.com/petetongisai";
 
 /** The charity, once it has agreed to be named (ticket 05), and its official fundraising page. */
-export const CHARITY: { name: string; url: string } | null = null;
+export const CHARITY: { name: string; url: string } | null = { name: "Shelter", url: "https://www.shelter.org.uk" };
