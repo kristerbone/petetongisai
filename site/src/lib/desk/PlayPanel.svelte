@@ -37,12 +37,6 @@
 
 	onMount(() => {
 		canShare = 'share' in navigator;
-		// From a Dedication's playlist box (ticket 14): the link is filled in, ready to Play or Send
-		const handedOver = page.url.searchParams.get('link');
-		if (handedOver) {
-			link = handedOver;
-			tick().then(() => playButton.focus({ preventScroll: true })); // once the link enables it
-		}
 		introAudio = new Audio();
 		embed = new SpotifyEmbed(embedEl, {
 			onPlayingChange: (playing) => {
@@ -50,7 +44,7 @@
 				// Someone pressed play on the embed itself mid-Intro: Pete never talks over the music
 				if (playing && !introAudio.paused) introAudio.pause();
 			},
-			onTrackStart: (uri) => trackIds.trackStarted(uri),
+			onTrackStart: (uri, durationMs) => trackIds.trackStarted(uri, durationMs),
 			onEnded: () => trackIds.ended()
 		});
 		trackIds = new TrackIds(embed);

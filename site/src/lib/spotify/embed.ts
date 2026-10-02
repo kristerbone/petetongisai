@@ -37,12 +37,19 @@ function loadApi(): Promise<IFrameAPI> {
 export type EmbedEvents = {
 	/** The embed started or stopped playing (the decks reflect this). */
 	onPlayingChange?: (playing: boolean) => void;
-	/** A track began playing (not a resume); Track IDs (ticket 13) build on this. */
-	onTrackStart?: (uri: string) => void;
+	/**
+	 * A track began playing (not a resume); Track IDs (ticket 13) build on this. Signed-out
+	 * listeners' embeds report the track's URI; signed-in listeners' report only the playlist's,
+	 * so the track's duration comes too, to tell which one it is.
+	 */
+	onTrackStart?: (uri: string, durationMs: number) => void;
 	/** The last track finished and nothing else is coming. */
 	onEnded?: () => void;
 };
 
+// A signed-in listener's embed reports the playlist, not the track: a new track shows up only as
+// a new duration. Within one track the duration wobbles by tens of milliseconds.
+const NEW_TRACK_DURATION_MS = 1500;
 // The embed sends no event when the music runs out: updates just stop at the end of the track
 const NEAR_END_MS = 1500;
 const ENDED_AFTER_MS = 2500;
@@ -54,6 +61,7 @@ export class SpotifyEmbed {
 	// on every update that says it's playing, until resume()
 	private holdPaused = false;
 	private endTimer: ReturnType<typeof setTimeout> | undefined;
+	private current: { uri: string; duration: number } | null = null;
 	playing = false;
 
 	constructor(
@@ -63,6 +71,7 @@ export class SpotifyEmbed {
 
 	/** Load a track or playlist URI into the embed (creating it the first time). */
 	async load(uri: string) {
+		this.current = null;
 		if (this.controller) {
 			this.ready = new Promise((resolve) => this.controller!.addListener('ready', resolve));
 			this.controller.loadUri(uri);
@@ -73,11 +82,8 @@ export class SpotifyEmbed {
 			api.createController(this.el, { uri, width: '100%', height: 152 }, (c) => {
 				this.controller = c;
 				c.addListener('ready', () => resolve());
-				c.addListener('playback_started', (e) => {
-					clearTimeout(this.endTimer);
-					this.events.onTrackStart?.(e.data.playingURI);
-				});
 				c.addListener('playback_update', (e) => {
+					this.watchForTrackStart(e.data);
 					this.watchForEnd(e.data);
 					const playing = !e.data.isPaused;
 					if (playing && this.holdPaused) c.pause();
@@ -89,6 +95,16 @@ export class SpotifyEmbed {
 			});
 		});
 		return this.ready;
+	}
+
+	/** playback_started fires only once for a signed-in listener, so track changes come from updates. */
+	private watchForTrackStart({ playingURI: uri, duration }: PlaybackUpdate) {
+		if (!uri || !duration) return;
+		const prev = this.current;
+		this.current = { uri, duration };
+		if (prev && prev.uri === uri && Math.abs(prev.duration - duration) < NEW_TRACK_DURATION_MS) return;
+		clearTimeout(this.endTimer);
+		this.events.onTrackStart?.(uri, duration);
 	}
 
 	/** At the end of a track, either it pauses there or updates stop; if no next track starts, it's over. */

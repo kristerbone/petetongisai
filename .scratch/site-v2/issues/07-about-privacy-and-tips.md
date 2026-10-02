@@ -12,3 +12,7 @@
 - [ ] Charity button links to the charity's official fundraising page
 - [ ] Footer: "Not affiliated with Pete Tong, the BBC or [charity]. All voices are AI-generated."
 - [ ] No money buttons on Dedication pages
+
+## Notes
+
+- From ticket 13: Track ID names come from MusicBrainz and Deezer (looked up by ISRC). Deezer's API terms ask for attribution, so credit both on the About page.

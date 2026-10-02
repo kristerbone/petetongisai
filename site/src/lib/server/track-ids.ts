@@ -10,7 +10,7 @@ import { LookupUnavailable, lookUpTrackName } from './track-names';
 const db = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const s3 = new S3Client({});
 
-// MusicBrainz grows; a track with no match gets looked up again after this long
+// MusicBrainz and Deezer grow; a track with no match gets looked up again after this long
 const NO_MATCH_RETRY_DAYS = 30;
 // A render nobody has collected by now (failed, or the GPU never came up) gets started again
 const STALE_RENDER_MS = 10 * 60 * 1000;
@@ -20,7 +20,7 @@ const STARTING_MS = 30_000;
 export type TrackIdLine =
 	| { status: 'ready'; audio: Uint8Array }
 	| { status: 'rendering' }
-	/** Pete says a generic line instead: no MusicBrainz match, the spending cap, too many renders, or a lookup failed */
+	/** Pete says a generic line instead: no name match, the spending cap, too many renders, or a lookup failed */
 	| { status: 'generic'; reason: 'no-match' | 'off-air' | 'rate-limited' | 'unavailable' };
 
 const audioKey = (trackId: string, form: Form) => `${trackId}/${form}.wav`;

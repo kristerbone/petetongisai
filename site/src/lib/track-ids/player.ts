@@ -1,6 +1,7 @@
 import type { SpotifyEmbed } from '$lib/spotify/embed';
 import { pete } from '$lib/desk/pete-audio';
 import { PIECES, type Form } from './lines';
+import { matchTrack, type ListedTrack } from './match';
 import { TrackIdSession, type Announcement, type Piece } from './session';
 
 const POLL_MS = 2000;
@@ -23,6 +24,12 @@ export class TrackIds {
 	private ctx: AudioContext | null = null;
 	private queue: Promise<void> = Promise.resolve();
 	private generation = 0;
+	// Track starts are resolved in order: a playlist's track list may still be loading
+	private starts: Promise<void> = Promise.resolve();
+	private playlist: Promise<ListedTrack[] | null> = Promise.resolve(null);
+	private lastMatch = -1;
+	private matched = new Set<number>();
+	private unmatched = 0;
 
 	constructor(private embed: SpotifyEmbed) {}
 
@@ -36,22 +43,48 @@ export class TrackIds {
 	start(uri: string) {
 		this.generation++;
 		this.session = new TrackIdSession(uri.startsWith('spotify:track:'));
+		this.lastMatch = -1;
+		this.matched = new Set();
+		const playlistId = uri.match(/^spotify:playlist:([A-Za-z0-9]{22})$/)?.[1];
+		this.playlist = playlistId
+			? fetch(`/api/playlist/${playlistId}`)
+					.then((r) => (r.ok ? r.json() : null))
+					.catch(() => null)
+			: Promise.resolve(null);
 	}
 
-	trackStarted(uri: string) {
-		const trackId = uri.match(/^spotify:track:([A-Za-z0-9]{22})$/)?.[1];
-		if (!trackId) return;
-		const step = this.session.trackStarted(trackId);
-		if (!step) return;
-		this.line(step.prepare);
-		if (step.announce) this.announce(step.announce);
+	/** uri is the track's, or (signed in) the playlist's, with the track's duration to find it by. */
+	trackStarted(uri: string, durationMs: number) {
+		const generation = this.generation;
+		this.starts = this.starts.then(async () => {
+			const trackId = await this.identify(uri, durationMs);
+			if (generation !== this.generation) return;
+			const step = this.session.trackStarted(trackId);
+			if (!step) return;
+			this.line(step.prepare);
+			if (step.announce) this.announce(step.announce);
+		});
+	}
+
+	/** The track's id, or a placeholder (named with a generic line) when it can't be told. */
+	private async identify(uri: string, durationMs: number): Promise<string> {
+		const direct = uri.match(/^spotify:track:([A-Za-z0-9]{22})$/)?.[1];
+		if (direct) return direct;
+		const list = await this.playlist;
+		const i = list ? matchTrack(list, durationMs, this.lastMatch, this.matched) : null;
+		if (i === null) return `unknown-${++this.unmatched}`;
+		this.lastMatch = i;
+		this.matched.add(i);
+		return list![i].trackId;
 	}
 
 	/** The music ended: names whatever's left. Resolves once Pete has finished speaking. */
 	ended(): Promise<void> {
-		const announcement = this.session.ended();
-		if (announcement) this.announce(announcement);
-		return this.queue;
+		return this.starts.then(() => {
+			const announcement = this.session.ended();
+			if (announcement) this.announce(announcement);
+			return this.queue;
+		});
 	}
 
 	/** Play one of Pete's pre-rendered lines (a Sign-off), after any Track ID still playing. */
@@ -106,6 +139,7 @@ export class TrackIds {
 
 	/** Fetch (and keep polling for) a track's line; null means use a generic one. */
 	private line({ trackId, form }: Piece): Promise<AudioBuffer | null> {
+		if (!/^[A-Za-z0-9]{22}$/.test(trackId)) return Promise.resolve(null);
 		const key = `${trackId}/${form}`;
 		let line = this.lines.get(key);
 		if (!line) {

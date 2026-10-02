@@ -22,7 +22,7 @@
 
 	onMount(() => {
 		embed = new SpotifyEmbed(embedEl!, {
-			onTrackStart: (uri) => trackIds.trackStarted(uri),
+			onTrackStart: (uri, durationMs) => trackIds.trackStarted(uri, durationMs),
 			// With music, the Sign-off follows the final Track ID
 			onEnded: () => trackIds.ended().then(signOff)
 		});

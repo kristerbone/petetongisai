@@ -9,6 +9,14 @@ describe('speakableName', () => {
 		expect(speakableName({ title: 'Circus (Fred again.. Remix)', artist: 'Jemi' })?.title).toBe('Circus (Fred again.. Remix)');
 	});
 
+	it('falls back to the first artist when the full credit is too long', () => {
+		const credit = 'House of Pain feat. D.J. Muggs, Damian Marley, Everlast & Meyhem Lauren';
+		expect(speakableName({ title: 'Jump Around (25 Year remix)', artist: credit }, 'House of Pain')).toEqual({
+			title: 'Jump Around (25 Year remix)',
+			artist: 'House of Pain'
+		});
+	});
+
 	it('gives up on names too long to say cleanly', () => {
 		expect(speakableName({ title: 'x'.repeat(80), artist: 'y'.repeat(20) })).toBeNull();
 		expect(speakableName({ title: '(Original Mix)', artist: 'Someone' })).toBeNull();

@@ -46,30 +46,50 @@ async function musicBrainzName(isrc: string): Promise<TrackName | null> {
 	if (res.status === 404) return null;
 	if (!res.ok) throw new LookupUnavailable(`MusicBrainz ${res.status}`);
 	const recording: MbRecording | undefined = (await res.json()).recordings?.[0];
-	if (!recording?.['artist-credit']?.length) return null;
-	return speakableName({
-		title: recording.title,
-		artist: recording['artist-credit'].map((a) => a.name + (a.joinphrase ?? '')).join('')
-	});
+	const credits = recording?.['artist-credit'];
+	if (!recording || !credits?.length) return null;
+	return speakableName(
+		{ title: recording.title, artist: credits.map((a) => a.name + (a.joinphrase ?? '')).join('') },
+		credits[0].name
+	);
+}
+
+/**
+ * Deezer's public API, for ISRCs MusicBrainz doesn't have (it misses many older releases). No key
+ * needed; its terms ask for attribution, which the About page gives.
+ */
+async function deezerName(isrc: string): Promise<TrackName | null> {
+	const res = await fetch(`https://api.deezer.com/track/isrc:${encodeURIComponent(isrc)}`);
+	if (!res.ok) throw new LookupUnavailable(`Deezer ${res.status}`);
+	const track = await res.json();
+	if (track.error) {
+		// 800 is "no data"; anything else (a quota, say) is worth trying again later
+		if (track.error.code === 800) return null;
+		throw new LookupUnavailable(`Deezer ${track.error.code} ${track.error.message}`);
+	}
+	if (typeof track.title !== 'string' || typeof track.artist?.name !== 'string') return null;
+	return speakableName({ title: track.title, artist: track.artist.name });
 }
 
 /**
  * Trim what Pete wouldn't say ("(Original Mix)", "- 2009 Remaster"), and give up on names too
- * long to say cleanly. Remixes keep their remixer.
+ * long to say cleanly. Remixes keep their remixer. A long artist credit falls back to its first artist.
  */
-export function speakableName({ title, artist }: TrackName): TrackName | null {
+export function speakableName({ title, artist }: TrackName, firstArtist?: string): TrackName | null {
 	const cleaned = title
 		.replace(/\s*[([][^)\]]*\b(original|radio|extended|club|album|single)\s+(mix|edit|version)\b[^)\]]*[)\]]/gi, '')
 		.replace(/\s*[([][^)\]]*\bremaster(ed)?\b[^)\]]*[)\]]/gi, '')
 		.replace(/\s+-\s+.*\bremaster(ed)?\b.*$/i, '')
 		.trim();
-	const name = { title: cleaned, artist: artist.trim() };
-	if (!name.title || !name.artist || name.title.length + name.artist.length > MAX_NAME_CHARS) return null;
-	return name;
+	const fits = (a: string) => !!cleaned && !!a && cleaned.length + a.length <= MAX_NAME_CHARS;
+	if (fits(artist.trim())) return { title: cleaned, artist: artist.trim() };
+	if (firstArtist && fits(firstArtist.trim())) return { title: cleaned, artist: firstArtist.trim() };
+	return null;
 }
 
-/** A Spotify track's name as MusicBrainz knows it (via its ISRC), or null if there's no match. */
+/** A Spotify track's name from its ISRC, in MusicBrainz or else Deezer; null if neither knows it. */
 export async function lookUpTrackName(trackId: string): Promise<TrackName | null> {
 	const code = await isrc(trackId);
-	return code ? musicBrainzName(code) : null;
+	if (!code) return null;
+	return (await musicBrainzName(code)) ?? (await deezerName(code));
 }
