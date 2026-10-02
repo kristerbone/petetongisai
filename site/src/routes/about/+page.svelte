@@ -51,11 +51,12 @@
 			<li>Pete's voice: <a href="https://github.com/resemble-ai/chatterbox" rel="noopener">Chatterbox</a> by Resemble AI.</li>
 		</ul>
 
-		<h2>Get in touch</h2>
+		<h2>How it's made, and getting in touch</h2>
 		<p>
-			To reach whoever runs the site, use the contact form for the domain owner at the domain's registrar (look up
-			petetongisai.com in a WHOIS search). That includes Pete Tong or anyone representing him who'd like something
-			changed.
+			All of the site's code, design notes and decisions are open on
+			<a href="https://github.com/kristerbone/petetongisai" rel="noopener">GitHub</a>. To reach whoever runs it,
+			<a href="https://github.com/kristerbone/petetongisai/issues" rel="noopener">open an issue</a> there. That
+			includes Pete Tong or anyone representing him who'd like something changed.
 		</p>
 		<p>See also: <a href="/privacy">Privacy</a>.</p>
 	</div>

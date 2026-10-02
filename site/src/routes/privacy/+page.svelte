@@ -65,8 +65,9 @@
 
 		<h2>Questions</h2>
 		<p>
-			Contact whoever runs the site through the domain registrar's contact form (look up petetongisai.com in a WHOIS
-			search). See also: <a href="/about">About</a>.
+			<a href="https://github.com/kristerbone/petetongisai/issues" rel="noopener">Open an issue on GitHub</a>, where
+			the site's code is public too. Please don't put personal details in an issue: they're public. See also:
+			<a href="/about">About</a>.
 		</p>
 	</div>
 

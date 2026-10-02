@@ -7,4 +7,4 @@ The site is run with zero maintenance: no moderation queue, no report button, no
 - A Dedication can be removed before its recipient hears it. This is accepted.
 - Intro audio is served with `no-store`, so no CDN or browser copy outlives a removal.
 - Removal must need a real click (a POST), so link-preview bots can't trigger it.
-- Complaints about the site as a whole (rather than one clip) arrive via the domain registrar's contact relay.
+- Complaints about the site as a whole (rather than one clip) arrive as issues on the public GitHub repo, which the About and Privacy pages link to.
