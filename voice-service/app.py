@@ -49,7 +49,7 @@ app = modal.App("pete-voice", image=image)
 
 
 # L40S: ~5.5s per warm two-sentence Intro vs ~14s on L4, at about the same cost per render
-@app.cls(gpu="L40S", volumes={VOL: volume}, scaledown_window=300, max_containers=1, timeout=180)
+@app.cls(gpu="L40S", volumes={VOL: volume}, scaledown_window=300, max_containers=1, timeout=300)
 class Voice:
     @modal.enter()
     def load(self):
@@ -87,11 +87,12 @@ class Voice:
         return audio, sr, coverage(text, heard["text"]), heard["text"].strip()
 
     def _line(self, text: str, ref: str) -> dict:
-        """Render each sentence, re-rendering any that drop words. Keeps the best take of each."""
-        from check import MIN_COVERAGE, sentences
+        """Render each sentence (a long one clause by clause), re-rendering any that drop words.
+        Keeps the best take of each."""
+        from check import MIN_COVERAGE, chunks
 
         takes = []
-        for sent in sentences(text):
+        for sent in chunks(text):
             best = None
             for attempt in range(ATTEMPTS_PER_SENTENCE):
                 audio, sr, cov, heard = self._sentence(sent, ref, seed=42 + attempt)
@@ -157,8 +158,8 @@ def api():
     @web.post("/renders", status_code=202)
     def start(req: RenderRequest):
         text = req.text.strip()
-        if not text or len(text) > 400:
-            raise HTTPException(400, "text must be 1-400 characters")
+        if not text or len(text) > 600:
+            raise HTTPException(400, "text must be 1-600 characters")
         if req.ref is not None and req.ref not in REFS:
             raise HTTPException(400, f"ref must be one of {REFS}")
         try:

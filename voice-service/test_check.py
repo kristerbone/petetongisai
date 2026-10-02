@@ -1,5 +1,5 @@
 """Cases are real transcripts from the voice bake-off (voice-bakeoff/out/scores.json)."""
-from check import passes, sentences
+from check import MAX_CHUNK_CHARS, MIN_COVERAGE, chunks, coverage, passes, sentences
 
 INTRO = "This one goes out to Sam, who still owes me a tenner. Turn it up, and enjoy!"
 NAMES = "Big love to Siobhan and Niamh in Dublin. This is for the dancefloor at Pacha, Ibiza."
@@ -22,3 +22,31 @@ def test_dropped_words_fail():
 
 def test_sentences():
     assert sentences(INTRO) == ["This one goes out to Sam, who still owes me a tenner.", "Turn it up, and enjoy!"]
+
+
+LONG = (
+    "Here is a belter of an essential mix, one of the most eclectic, intelligent and non mainstream playlists "
+    "you'll ever hear go the mosey, I P L U sexy lover"
+)
+
+
+def test_a_dropped_ending_fails_even_when_most_words_were_said():
+    # A real render: the model stopped early, yet 81% of the letters were heard
+    heard = "Here is a belter of an essential mix, one of the most eclectic intelligent and non-mainstream playlists you'll ever hear."
+    assert coverage(LONG, heard) < MIN_COVERAGE
+    assert passes(LONG, heard + " Go the mosey, IPLU sexy lover.")
+
+
+def test_long_sentences_are_rendered_in_clauses():
+    assert chunks(INTRO) == sentences(INTRO)
+    assert chunks(LONG) == [
+        "Here is a belter of an essential mix, one of the most eclectic,",
+        "intelligent and non mainstream playlists you'll ever hear go the mosey, I P L U sexy lover",
+    ]
+    assert all(len(c) <= MAX_CHUNK_CHARS for c in chunks(LONG))
+
+
+def test_dropping_the_last_two_words_fails():
+    # A real render of the clause above: "sexy lover" never came out
+    clause = chunks(LONG)[1]
+    assert not passes(clause, "Intelligent and non-mainstream playlist you'll ever hear go the Mosey. IPL use.")

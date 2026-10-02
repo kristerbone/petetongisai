@@ -5,7 +5,7 @@ import { hitPlayLimit } from '$lib/server/rate-limit';
 import { clientKey } from '$lib/server/rate-limit-window';
 import type { RequestHandler } from './$types';
 
-const MAX_CHARS = 200;
+const MAX_CHARS = 500; // voice-service takes up to 600
 
 /**
  * Play with text: count it against the IP's hourly limit, have Haiku check it, then start

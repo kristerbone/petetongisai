@@ -8,7 +8,7 @@
 	import { onJingle, pete } from './pete-audio';
 	import { decks } from './state.svelte';
 
-	const MAX_CHARS = 200;
+	const MAX_CHARS = 500;
 	// A silent WAV, played inside the tap so the Intro may play later without one (Safari)
 	const SILENCE = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
 
@@ -146,13 +146,13 @@
 	<div class="intro-badge">AI voice, not Pete Tong</div>
 
 	<div class="voice-input-row">
-		<input
-			type="text"
-			class="voice-input"
+		<textarea
+			class="voice-input intro-text"
+			rows="3"
 			placeholder="What should Pete say? e.g. This one goes out to Sam, who still owes me a tenner."
 			maxlength={MAX_CHARS}
 			bind:value={text}
-		/>
+		></textarea>
 	</div>
 	<div class="text-count">{text.length}/{MAX_CHARS}</div>
 	<div class="voice-input-row">

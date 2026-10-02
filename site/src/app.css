@@ -713,3 +713,4 @@ body {
 .money-btn.soon { opacity: 0.45; cursor: default; }
 .money-btn.soon:hover { background: #ff6b35; }
 .money-btn.charity.soon:hover { background: #2a2a2a; }
+.intro-text { resize: vertical; line-height: 1.4; }
