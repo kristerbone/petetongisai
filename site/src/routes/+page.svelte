@@ -3,6 +3,7 @@
 	import Jingles from '$lib/desk/Jingles.svelte';
 	import Mixer from '$lib/desk/Mixer.svelte';
 	import PlayPanel from '$lib/desk/PlayPanel.svelte';
+	import SiteFooter from '$lib/site/SiteFooter.svelte';
 </script>
 
 <svelte:head>
@@ -25,4 +26,5 @@
 	<PlayPanel />
 
 	<div class="status-bar">◉ PeteTongIsAI.com — Built with love ◉</div>
+	<SiteFooter />
 </div>
