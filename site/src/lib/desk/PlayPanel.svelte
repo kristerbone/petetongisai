@@ -3,6 +3,7 @@
 	import { parseSpotifyLink } from '$lib/spotify/link';
 	import { SpotifyEmbed } from '$lib/spotify/embed';
 	import { renderIntro, type IntroStatus } from './intro';
+	import { onJingle, pete } from './pete-audio';
 	import { decks } from './state.svelte';
 
 	const MAX_CHARS = 200;
@@ -41,6 +42,17 @@
 			},
 			onTrackStart: (uri) => console.debug('track started', uri)
 		});
+		// A Jingle pauses the music and picks it back up afterwards
+		let resumeAfterJingle = false;
+		return onJingle((speaking) => {
+			if (speaking && embed.playing) {
+				resumeAfterJingle = true;
+				embed.pause({ hold: true });
+			} else if (!speaking && resumeAfterJingle) {
+				resumeAfterJingle = false;
+				embed.resume();
+			}
+		});
 	});
 
 	async function play() {
@@ -70,6 +82,7 @@
 			introAudio.src = URL.createObjectURL(result.audio);
 			const finished = new Promise((resolve) => (introAudio.onended = introAudio.onpause = resolve));
 			try {
+				pete.introPlaying = true;
 				await introAudio.play();
 				await finished;
 			} catch (e) {
@@ -77,6 +90,8 @@
 				message = 'Your browser blocked Pete; press Play again.';
 				stage = 'idle';
 				return;
+			} finally {
+				pete.introPlaying = false;
 			}
 		}
 

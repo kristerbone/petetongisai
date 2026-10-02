@@ -49,6 +49,12 @@ export default $config({
     // Only production gets the real domain; other stages use the CloudFront URL
     const site = new sst.aws.SvelteKit("Site", {
       link: [anthropicKey, rateLimits, intros, dedications],
+      // SST's type lookup doesn't know .mp3, and Safari won't play audio served as octet-stream
+      assets: {
+        fileOptions: [
+          { files: "jingles/*.mp3", contentType: "audio/mpeg", cacheControl: "public,max-age=3600,s-maxage=86400" },
+        ],
+      },
       environment: {
         MODAL_VOICE_URL: "https://krister-bone--pete-voice-api.modal.run",
         MODAL_PROXY_TOKEN_ID: modalTokenId.value,

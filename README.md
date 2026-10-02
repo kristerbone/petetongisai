@@ -9,7 +9,7 @@ Fan/hobby project, built for fun. Tips cover hosting costs only; any surplus goe
 - Dual spinning turntable decks with BPM nudge controls
 - Animated level meters and crossfader
 - Clickable EQ knobs
-- 8 jingle buttons with Pete Tong catchphrases (browser TTS)
+- 8 original Jingle buttons in Pete's (AI) voice, pre-rendered as static audio
 - Play panel: Pete reads your Intro (AI voice, checked and rate-limited), then your Spotify track or playlist plays
 
 ## Roadmap

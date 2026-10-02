@@ -44,6 +44,9 @@ export type EmbedEvents = {
 export class SpotifyEmbed {
 	private controller: EmbedController | null = null;
 	private ready: Promise<void> | null = null;
+	// The embed ignores pause() while it's still starting a track, so a wanted pause is re-sent
+	// on every update that says it's playing, until resume()
+	private holdPaused = false;
 	playing = false;
 
 	constructor(
@@ -66,6 +69,7 @@ export class SpotifyEmbed {
 				c.addListener('playback_started', (e) => this.events.onTrackStart?.(e.data.playingURI));
 				c.addListener('playback_update', (e) => {
 					const playing = !e.data.isPaused;
+					if (playing && this.holdPaused) c.pause();
 					if (playing !== this.playing) {
 						this.playing = playing;
 						this.events.onPlayingChange?.(playing);
@@ -76,12 +80,24 @@ export class SpotifyEmbed {
 		return this.ready;
 	}
 
-	/** May be ignored without a recent tap (Safari); the embed's own play button still works. */
-	play() {
-		this.controller?.play();
+	/**
+	 * Pause the music. With hold, keep it paused (even through a track that's still starting)
+	 * until resume(): Pete's Jingles use that. Without, someone can press play on the embed.
+	 */
+	pause({ hold = false } = {}) {
+		if (!this.playing) return;
+		this.holdPaused = hold;
+		this.controller?.pause();
 	}
 
-	pause() {
-		if (this.playing) this.controller?.pause();
+	resume() {
+		this.holdPaused = false;
+		this.controller?.resume();
+	}
+
+	/** May be ignored without a recent tap (Safari); the embed's own play button still works. */
+	play() {
+		this.holdPaused = false;
+		this.controller?.play();
 	}
 }

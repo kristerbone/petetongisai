@@ -1,0 +1,10 @@
+[
+	{ "id": "nonstop", "label": "Nonstop", "text": "Nonstop, back to back. We are going in!" },
+	{ "id": "the-legend", "label": "The Legend", "text": "The don, the legend, the machine learning master." },
+	{ "id": "turn-it-up", "label": "Turn It Up", "text": "Turn it up. Go on, a little bit more. Lovely." },
+	{ "id": "global-dance-ai", "label": "Global Dance AI", "text": "Live from Global Dance A.I. Where the beats are real, and the DJ isn't.", "spoken": "Live from Global Dance A.I. Where the beats are real, and the DJ isn't.", "ref": "ref3" },
+	{ "id": "banger", "label": "Banger", "text": "Oh, that's a banger. Absolute banger." },
+	{ "id": "dance-hq", "label": "Dance HQ", "text": "Coming to you from Global Dance HQ. Well, a server farm somewhere.", "spoken": "Coming to you from Global Dance H Q. Well, a server farm somewhere." },
+	{ "id": "in-the-mix", "label": "In the Mix", "text": "Right in the middle of the mix, baby." },
+	{ "id": "pete-tong-is-ai", "label": "Pete Tong Is A.I", "text": "Pete Tong is A.I. The tunes are real. The voice? Not so much.", "spoken": "Pete Tong is A.I. The tunes are real. The voice? Not so much." }
+]
