@@ -3,6 +3,12 @@
 const DOMAIN = "petetongisai.com";
 // A Dedication nobody opens for this long Fades (ADR 0003)
 const FADE_AFTER_DAYS = "30";
+// Per-IP hourly limits: production keeps the defaults (5 Plays, 60 new Track ID lines); staging is
+// opened right up for the first testers. The Modal spending cap still bounds what rendering costs.
+const LIMITS: Record<string, { plays: string; trackIds: string }> = {
+  production: { plays: "5", trackIds: "60" },
+};
+const OPEN_LIMITS = { plays: "1000", trackIds: "1000" };
 
 export default $config({
   app(input) {
@@ -78,6 +84,8 @@ export default $config({
         MODAL_PROXY_TOKEN_ID: modalTokenId.value,
         MODAL_PROXY_TOKEN_SECRET: modalTokenSecret.value,
         FADE_AFTER_DAYS,
+        PLAYS_PER_HOUR: (LIMITS[$app.stage] ?? OPEN_LIMITS).plays,
+        TRACK_ID_RENDERS_PER_HOUR: (LIMITS[$app.stage] ?? OPEN_LIMITS).trackIds,
       },
       domain: $app.stage === "production" ? { name: DOMAIN, redirects: [`www.${DOMAIN}`] } : undefined,
     });

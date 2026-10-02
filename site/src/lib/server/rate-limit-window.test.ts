@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clientKey, decide } from './rate-limit-window';
+import { clientKey, decide, limitFrom } from './rate-limit-window';
 
 const HOUR = 3_600_000;
 
@@ -36,5 +36,15 @@ describe('clientKey', () => {
 
 	it('falls back to the source address', () => {
 		expect(clientKey(null, '127.0.0.1')).toBe('127.0.0.1');
+	});
+});
+
+describe('limitFrom', () => {
+	it('takes a stage’s own limit, or falls back to the default', () => {
+		expect(limitFrom('1000', 5)).toBe(1000);
+		expect(limitFrom(undefined, 5)).toBe(5);
+		expect(limitFrom('', 5)).toBe(5);
+		expect(limitFrom('zero', 5)).toBe(5);
+		expect(limitFrom('0', 5)).toBe(5);
 	});
 });

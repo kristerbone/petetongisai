@@ -1,4 +1,9 @@
 export const PLAYS_PER_HOUR = 5;
+/** A stage's own limit (sst.config.ts sets them per stage), or the default when unset or nonsense. */
+export function limitFrom(value: string | undefined, fallback: number): number {
+	const n = Number(value);
+	return Number.isInteger(n) && n > 0 ? n : fallback;
+}
 // A playlist of full tracks starts about 20 an hour; previews (about 15s each) start more, often already cached
 export const TRACK_ID_RENDERS_PER_HOUR = 60;
 const WINDOW_MS = 60 * 60 * 1000;
