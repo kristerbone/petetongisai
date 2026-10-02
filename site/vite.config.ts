@@ -11,7 +11,10 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 
-			adapter: adapter()
+			adapter: adapter(),
+
+			// Local dev reads the repo-root .env (MODAL_* etc.); on AWS, SST sets them from Secrets
+			env: { dir: '..' }
 		})
 	]
 });

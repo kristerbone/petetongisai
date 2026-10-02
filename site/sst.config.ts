@@ -14,8 +14,17 @@ export default $config({
     };
   },
   async run() {
+    // Set per stage: npm run sst -- secret set ModalProxyTokenId <value> --stage <stage>
+    const modalTokenId = new sst.Secret("ModalProxyTokenId");
+    const modalTokenSecret = new sst.Secret("ModalProxyTokenSecret");
+
     // Only production gets the real domain; other stages use the CloudFront URL
     const site = new sst.aws.SvelteKit("Site", {
+      environment: {
+        MODAL_VOICE_URL: "https://krister-bone--pete-voice-api.modal.run",
+        MODAL_PROXY_TOKEN_ID: modalTokenId.value,
+        MODAL_PROXY_TOKEN_SECRET: modalTokenSecret.value,
+      },
       domain: $app.stage === "production" ? { name: DOMAIN, redirects: [`www.${DOMAIN}`] } : undefined,
     });
     return { url: site.url };

@@ -3,11 +3,15 @@
 Usage (from voice-service/, with any venv that has `modal`, e.g. ../voice-bakeoff/.venv-chatterbox):
   modal run app.py::setup                        # once: pin the adapter + upload Reference Clips to the Volume
   modal run app.py::main --text "Pete Tong with you."  # render one line straight from the CLI -> out.wav
-  modal deploy app.py                            # publish the web endpoint
+  modal deploy app.py                            # publish the web API
 
-The endpoint is POST {"text": "...", "ref": "ref4"?} -> audio/wav. It requires a Modal proxy auth token
-(Modal-Key / Modal-Secret headers), which only the site's server holds. Each sentence is checked with
-Whisper; dropped words trigger a re-render, then a retry with the next Reference Clip.
+The web API is two calls, because a GPU cold start (~60s) outlasts the site's request timeout:
+  POST /renders {"text": "...", "ref": "ref4"?}  -> 202 {"id": ...}
+  GET  /renders/{id}                             -> 202 while rendering, then 200 audio/wav
+Either returns 402 {"error": "budget"} when Modal refuses work because the spending cap is reached.
+It requires a Modal proxy auth token (Modal-Key / Modal-Secret headers), which only the site's server
+holds. Each sentence is checked with Whisper; dropped words trigger a re-render, then a retry with the
+next Reference Clip.
 """
 import io
 import time
@@ -127,17 +131,56 @@ class Voice:
             "render_s": round(time.time() - t0, 1),
         }
 
-    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
-    def speak(self, body: dict):
-        from fastapi import HTTPException, Response
 
-        text = (body.get("text") or "").strip()
-        ref = body.get("ref")
+def is_budget_error(e: Exception) -> bool:
+    """Modal doesn't document what a reached budget looks like to callers; this is a best guess."""
+    msg = str(e).lower()
+    return isinstance(e, modal.exception.ResourceExhaustedError) or any(
+        w in msg for w in ("budget", "spend limit", "spending limit", "billing")
+    )
+
+
+# The API runs on a small CPU container, so it answers in a second or two while the GPU cold-starts.
+@app.function(image=modal.Image.debian_slim(python_version="3.11").pip_install("fastapi[standard]"))
+@modal.asgi_app(requires_proxy_auth=True)
+def api():
+    from fastapi import FastAPI, HTTPException, Response
+    from fastapi.responses import JSONResponse
+    from pydantic import BaseModel
+
+    web = FastAPI()
+
+    class RenderRequest(BaseModel):
+        text: str
+        ref: str | None = None
+
+    @web.post("/renders", status_code=202)
+    def start(req: RenderRequest):
+        text = req.text.strip()
         if not text or len(text) > 400:
             raise HTTPException(400, "text must be 1-400 characters")
-        if ref is not None and ref not in REFS:
+        if req.ref is not None and req.ref not in REFS:
             raise HTTPException(400, f"ref must be one of {REFS}")
-        out = self.render.local(text, ref)
+        try:
+            call = Voice().render.spawn(text, req.ref)
+        except Exception as e:
+            if is_budget_error(e):
+                return JSONResponse({"error": "budget", "detail": str(e)[:300]}, 402)
+            raise
+        return {"id": call.object_id}
+
+    @web.get("/renders/{call_id}")
+    def result(call_id: str):
+        try:
+            out = modal.FunctionCall.from_id(call_id).get(timeout=0)
+        except (TimeoutError, modal.exception.TimeoutError):
+            return JSONResponse({"status": "rendering"}, 202)
+        except modal.exception.NotFoundError:
+            raise HTTPException(404, "no such render")
+        except Exception as e:
+            if is_budget_error(e):
+                return JSONResponse({"error": "budget", "detail": str(e)[:300]}, 402)
+            return JSONResponse({"error": "failed", "detail": str(e)[:300]}, 500)
         return Response(
             out["wav"],
             media_type="audio/wav",
@@ -148,6 +191,8 @@ class Voice:
                 "X-Voice-Render-Seconds": str(out["render_s"]),
             },
         )
+
+    return web
 
 
 @app.function(volumes={VOL: volume}, timeout=600)

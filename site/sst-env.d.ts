@@ -6,6 +6,14 @@
 
 declare module "sst" {
   export interface Resource {
+    "ModalProxyTokenId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ModalProxyTokenSecret": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "Site": {
       "type": "sst.aws.SvelteKit"
       "url": string
