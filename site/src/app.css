@@ -676,3 +676,9 @@ body {
 
 .speak-btn:disabled { opacity: 0.6; cursor: progress; }
 .voice-status { color: #888; font-style: italic; }
+.voice-input.invalid { border-color: #ff3333; }
+.text-count { font-size: 10px; color: #444; text-align: right; margin: 4px 2px 0; }
+.spotify-embed { display: none; margin-top: 14px; }
+.spotify-embed.visible { display: block; }
+.spotify-embed iframe { border-radius: 12px; }
+.text-count + .voice-input-row { margin-top: 4px; }

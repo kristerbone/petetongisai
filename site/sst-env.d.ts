@@ -6,6 +6,14 @@
 
 declare module "sst" {
   export interface Resource {
+    "AnthropicApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "Intros": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
     "ModalProxyTokenId": {
       "type": "sst.sst.Secret"
       "value": string
@@ -13,6 +21,10 @@ declare module "sst" {
     "ModalProxyTokenSecret": {
       "type": "sst.sst.Secret"
       "value": string
+    }
+    "RateLimits": {
+      "name": string
+      "type": "sst.aws.Dynamo"
     }
     "Site": {
       "type": "sst.aws.SvelteKit"

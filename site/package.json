@@ -12,7 +12,8 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"sst": "./scripts/with-aws.sh sst",
 		"deploy": "./scripts/with-aws.sh sst deploy --stage production",
-		"deploy:staging": "./scripts/with-aws.sh sst deploy --stage staging"
+		"deploy:staging": "./scripts/with-aws.sh sst deploy --stage staging",
+		"test": "vitest run"
 	},
 	"devDependencies": {
 		"@sveltejs/kit": "^2.63.0",
@@ -22,6 +23,14 @@
 		"svelte-check": "^4.6.0",
 		"svelte-kit-sst": "^2.43.5",
 		"typescript": "^6.0.3",
-		"vite": "^8.0.16"
+		"vite": "^8.0.16",
+		"vitest": "^5.0.3"
+	},
+	"dependencies": {
+		"@anthropic-ai/sdk": "^0.131.0",
+		"@aws-sdk/client-dynamodb": "^3.1145.0",
+		"@aws-sdk/client-s3": "^3.1145.0",
+		"@aws-sdk/lib-dynamodb": "^3.1145.0",
+		"zod": "^4.6.5"
 	}
 }

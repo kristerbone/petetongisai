@@ -4,19 +4,18 @@ A DJ mixing desk web experience inspired by Pete Tong — BBC Radio 1 legend and
 
 Fan/hobby project, built for fun. Tips cover hosting costs only; any surplus goes to charity.
 
-## Features (v1)
+## Features
 
 - Dual spinning turntable decks with BPM nudge controls
 - Animated level meters and crossfader
 - Clickable EQ knobs
 - 8 jingle buttons with Pete Tong catchphrases (browser TTS)
-- Custom text-to-speech voice box — type anything, Pete says it
-- Mocked Spotify player UI (Spotify embeds coming, see ADR 0001)
+- Play panel: Pete reads your Intro (AI voice, checked and rate-limited), then your Spotify track or playlist plays
 
 ## Roadmap
 
-- [ ] Self-hosted open voice model — Pete Tong voice clone, chosen by listening test (see `docs/adr/0002-self-hosted-open-voice-model.md`)
-- [ ] Spotify embeds via the iFrame API — real track playback (see `docs/adr/0001-spotify-embeds-not-playback-sdk.md`)
+- [x] Self-hosted open voice model — Pete Tong voice clone, chosen by listening test (see `docs/adr/0002-self-hosted-open-voice-model.md`)
+- [x] Spotify embeds via the iFrame API — real track playback (see `docs/adr/0001-spotify-embeds-not-playback-sdk.md`)
 - [ ] Track IDs — Pete back-announces every two tracks, in lines written from his real shows
 - [x] Migrate to SvelteKit on AWS (via SST)
 

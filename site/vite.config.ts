@@ -14,7 +14,10 @@ export default defineConfig({
 			adapter: adapter(),
 
 			// Local dev reads the repo-root .env (MODAL_* etc.); on AWS, SST sets them from Secrets
-			env: { dir: '..' }
+			env: { dir: '..' },
+
+			// SST's generated Resource types (linked secrets, table, bucket)
+			typescript: { config: (c) => void c.include.push('../sst-env.d.ts') }
 		})
 	]
 });

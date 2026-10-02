@@ -3,8 +3,7 @@
 	import Deck from '$lib/desk/Deck.svelte';
 	import Jingles from '$lib/desk/Jingles.svelte';
 	import Mixer from '$lib/desk/Mixer.svelte';
-	import SpotifyMock from '$lib/desk/SpotifyMock.svelte';
-	import VoiceBox from '$lib/desk/VoiceBox.svelte';
+	import PlayPanel from '$lib/desk/PlayPanel.svelte';
 	import { warmUpVoices } from '$lib/desk/voice';
 
 	onMount(warmUpVoices);
@@ -27,8 +26,7 @@
 	</div>
 
 	<Jingles />
-	<VoiceBox />
-	<SpotifyMock />
+	<PlayPanel />
 
 	<div class="status-bar">◉ PeteTongIsAI.com — Built with love ◉</div>
 </div>

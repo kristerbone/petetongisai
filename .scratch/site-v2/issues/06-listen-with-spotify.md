@@ -4,9 +4,15 @@
 
 **Blocked by:** 04
 
-**Status:** ready-for-agent
+**Status:** done on staging (built together with 10 as one Play panel)
 
-- [ ] Panel accepts a Spotify track or playlist link; invalid links are rejected clearly
-- [ ] Play with no text plays the embed; the embed shows its own cover art and metadata
-- [ ] The page can observe each track starting (for later Track IDs) and pause/resume the embed
-- [ ] The mocked Spotify player is removed; decks remain decorative
+- [x] Panel accepts a Spotify track or playlist link; invalid links are rejected clearly
+- [x] Play with no text plays the embed; the embed shows its own cover art and metadata
+- [x] The page can observe each track starting (for later Track IDs) and pause/resume the embed
+- [x] The mocked Spotify player is removed; decks remain decorative
+
+## Notes
+
+- `site/src/lib/spotify/link.ts` parses track and playlist links (open.spotify.com, including /intl-xx/ and /embed/, and spotify: URIs); albums, artists and other sites are rejected, with tests.
+- `site/src/lib/spotify/embed.ts` wraps the iFrame API. `onTrackStart(uri)` fires from `playback_started` with the actual track URI, including tracks inside a playlist; ticket 13 hooks in there. Deck A spins while the embed plays.
+- `play()` after an Intro may be ignored by Safari without a fresh tap; the embed's own play button still works.
