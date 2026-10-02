@@ -13,7 +13,8 @@
 		"sst": "./scripts/with-aws.sh sst",
 		"deploy": "./scripts/with-aws.sh sst deploy --stage production",
 		"deploy:staging": "./scripts/with-aws.sh sst deploy --stage staging",
-		"test": "vitest run"
+		"test": "vitest run",
+		"eval:intro": "node scripts/eval-intro-check.mjs"
 	},
 	"devDependencies": {
 		"@sveltejs/kit": "^2.63.0",

@@ -4,16 +4,16 @@ import { clientKey, decide, limitFrom } from './rate-limit-window';
 const HOUR = 3_600_000;
 
 describe('decide', () => {
-	it('allows five plays an hour, then says when the oldest frees up', () => {
+	it('allows ten plays an hour, then says when the oldest frees up', () => {
 		let hits: number[] = [];
-		for (let i = 0; i < 5; i++) {
+		for (let i = 0; i < 10; i++) {
 			const d = decide(hits, 1000 + i * 60_000);
 			expect(d.allowed).toBe(true);
 			hits = d.hits;
 		}
-		const sixth = decide(hits, 1000 + 10 * 60_000);
-		expect(sixth.allowed).toBe(false);
-		expect(sixth.retryAfterS).toBe(50 * 60);
+		const eleventh = decide(hits, 1000 + 20 * 60_000);
+		expect(eleventh.allowed).toBe(false);
+		expect(eleventh.retryAfterS).toBe(40 * 60);
 	});
 
 	it('forgets hits older than an hour', () => {

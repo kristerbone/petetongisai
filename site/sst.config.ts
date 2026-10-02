@@ -3,10 +3,10 @@
 const DOMAIN = "petetongisai.com";
 // A Dedication nobody opens for this long Fades (ADR 0003)
 const FADE_AFTER_DAYS = "30";
-// Per-IP hourly limits: production keeps the defaults (5 Plays, 60 new Track ID lines); staging is
+// Per-IP hourly limits: production keeps the defaults (10 Plays, 60 new Track ID lines); staging is
 // opened right up for the first testers. The Modal spending cap still bounds what rendering costs.
 const LIMITS: Record<string, { plays: string; trackIds: string }> = {
-  production: { plays: "5", trackIds: "60" },
+  production: { plays: "10", trackIds: "60" },
 };
 const OPEN_LIMITS = { plays: "1000", trackIds: "1000" };
 

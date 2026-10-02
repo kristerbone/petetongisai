@@ -1,4 +1,4 @@
-export const PLAYS_PER_HOUR = 5;
+export const PLAYS_PER_HOUR = 10;
 /** A stage's own limit (sst.config.ts sets them per stage), or the default when unset or nonsense. */
 export function limitFrom(value: string | undefined, fallback: number): number {
 	const n = Number(value);
