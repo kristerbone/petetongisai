@@ -1,6 +1,6 @@
 # Pete's lines
 
-**Status:** approved by the owner, 2026-10-02. Jingles are live (ticket 09); Sign-offs and Track IDs are for tickets 13 and 14.
+**Status:** approved by the owner, 2026-10-02. Jingles are live (ticket 09); Track IDs (ticket 13) and Sign-offs (ticket 14) are live on staging.
 
 Every fixed line Pete says on the site (ticket 03). Each line is an original, written in his on-air style as heard in the pipeline's transcripts of five shows. None mentions the BBC, Radio 1, BBC Sounds or any show segment: no Essential Mix, Essential New Tune, Hot Mix, Club Heat Mix or Eclectic Selection.
 

@@ -693,3 +693,4 @@ body {
 .dedication-remove { text-align: center; margin-top: 20px; }
 .dedication-remove button { background: none; border: none; color: #555; font-size: 11px; text-decoration: underline; cursor: pointer; font-family: inherit; }
 .dedication-remove button:hover { color: #ff3333; }
+.playlist-box { margin-top: 20px; }

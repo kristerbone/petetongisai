@@ -66,6 +66,7 @@ export default $config({
       assets: {
         fileOptions: [
           { files: "jingles/*.mp3", contentType: "audio/mpeg", cacheControl: "public,max-age=3600,s-maxage=86400" },
+          { files: "sign-offs/*.mp3", contentType: "audio/mpeg", cacheControl: "public,max-age=3600,s-maxage=86400" },
           { files: "track-ids/*.mp3", contentType: "audio/mpeg", cacheControl: "public,max-age=3600,s-maxage=86400" },
         ],
       },

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
+	import { page } from '$app/state';
 	import { parseSpotifyLink } from '$lib/spotify/link';
 	import { SpotifyEmbed } from '$lib/spotify/embed';
 	import { TrackIds } from '$lib/track-ids/player';
@@ -17,6 +18,7 @@
 	let stage = $state<'idle' | IntroStatus | 'intro' | 'music'>('idle');
 	let embedEl: HTMLDivElement;
 	let embed: SpotifyEmbed;
+	let playButton: HTMLButtonElement;
 	let trackIds: TrackIds;
 	let introAudio: HTMLAudioElement;
 	let hasEmbed = $state(false);
@@ -35,6 +37,12 @@
 
 	onMount(() => {
 		canShare = 'share' in navigator;
+		// From a Dedication's playlist box (ticket 14): the link is filled in, ready to Play or Send
+		const handedOver = page.url.searchParams.get('link');
+		if (handedOver) {
+			link = handedOver;
+			tick().then(() => playButton.focus({ preventScroll: true })); // once the link enables it
+		}
 		introAudio = new Audio();
 		embed = new SpotifyEmbed(embedEl, {
 			onPlayingChange: (playing) => {
@@ -139,7 +147,7 @@
 	}
 </script>
 
-<div class="pt-voice-section">
+<div class="pt-voice-section" id="play">
 	<div class="section-label"><span class="led"></span>On Air — Pete Introduces Your Track</div>
 	<div class="intro-badge">AI voice, not Pete Tong</div>
 
@@ -162,7 +170,7 @@
 			bind:value={link}
 			onkeydown={(e) => e.key === 'Enter' && play()}
 		/>
-		<button class="speak-btn" onclick={play} disabled={busy || linkInvalid || (!text.trim() && !parsed)}>
+		<button class="speak-btn" bind:this={playButton} onclick={play} disabled={busy || linkInvalid || (!text.trim() && !parsed)}>
 			{busy ? '…' : '▶ Play'}
 		</button>
 	</div>

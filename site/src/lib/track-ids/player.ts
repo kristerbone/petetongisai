@@ -47,9 +47,25 @@ export class TrackIds {
 		if (step.announce) this.announce(step.announce);
 	}
 
-	ended() {
+	/** The music ended: names whatever's left. Resolves once Pete has finished speaking. */
+	ended(): Promise<void> {
 		const announcement = this.session.ended();
 		if (announcement) this.announce(announcement);
+		return this.queue;
+	}
+
+	/** Play one of Pete's pre-rendered lines (a Sign-off), after any Track ID still playing. */
+	say(url: string): Promise<void> {
+		this.queue = this.queue.then(async () => {
+			pete.speaking = true;
+			try {
+				const line = await this.fetchAudio(url);
+				if (line) await this.play([line]);
+			} finally {
+				pete.speaking = false;
+			}
+		});
+		return this.queue;
 	}
 
 	private announce(a: Announcement) {
@@ -117,16 +133,20 @@ export class TrackIds {
 	private piece(id: string): Promise<AudioBuffer | null> {
 		let piece = this.pieces.get(id);
 		if (!piece) {
-			piece = fetch(`/track-ids/${id}.mp3`)
-				.then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`${id}: ${r.status}`))))
-				.then((data) => this.decode(data))
-				.catch((e) => {
-					console.warn('Track ID piece failed', e);
-					return null;
-				});
+			piece = this.fetchAudio(`/track-ids/${id}.mp3`);
 			this.pieces.set(id, piece);
 		}
 		return piece;
+	}
+
+	private fetchAudio(url: string): Promise<AudioBuffer | null> {
+		return fetch(url)
+			.then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`${url}: ${r.status}`))))
+			.then((data) => this.decode(data))
+			.catch((e) => {
+				console.warn('Pete’s line failed to load', e);
+				return null;
+			});
 	}
 
 	private decode(data: ArrayBuffer) {

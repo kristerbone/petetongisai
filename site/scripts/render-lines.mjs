@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Render Pete's fixed lines once, in his voice, as static MP3s: the Jingles in src/lib/desk/jingles.json
 // into static/jingles/<id>.mp3, and the Track ID pieces (openers, joiners, closers, generic lines) in
-// src/lib/track-ids/lines.json into static/track-ids/<id>.mp3. Uses voice-service's render API with
+// src/lib/track-ids/lines.json into static/track-ids/<id>.mp3, and the Sign-offs in
+// src/lib/dedication/sign-offs.json into static/sign-offs/<id>.mp3. Uses voice-service's render API with
 // the Modal proxy token from the repo-root .env. Skips lines that already have a file; pass --force to
 // re-render all, or ids to render just those. A line's optional "ref" picks the Reference Clip to try
 // first (some takes land a word better), and "spoken" overrides the text sent to the voice. Needs ffmpeg.
@@ -26,7 +27,8 @@ const sets = [
 	{
 		dir: 'track-ids',
 		lines: [...pieces.openers, ...pieces.joiners, ...pieces.closers, ...pieces.genericLeads, ...pieces.genericFollows]
-	}
+	},
+	{ dir: 'sign-offs', lines: json('../src/lib/dedication/sign-offs.json') }
 ];
 
 async function render(text, ref) {
