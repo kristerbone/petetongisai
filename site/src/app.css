@@ -714,3 +714,16 @@ body {
 .money-btn.soon:hover { background: #ff6b35; }
 .money-btn.charity.soon:hover { background: #2a2a2a; }
 .intro-text { resize: vertical; line-height: 1.4; }
+
+/* ------------------------------------------------------------------ Occasion starters (ticket 16) */
+.starters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
+.starters-label { font-size: 11px; color: #777; letter-spacing: 1px; text-transform: uppercase; margin-right: 2px; }
+.starter-chip { background: #222; border: 1px solid #3a3a3a; color: #ddd; border-radius: 999px; padding: 5px 11px; font-size: 12px; font-family: inherit; cursor: pointer; }
+.starter-chip:hover { border-color: #ff6b35; color: #fff; }
+@media (max-width: 600px) {
+  /* One swipeable row on phones, so the Intro box stays near the top */
+  .starters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .starters::-webkit-scrollbar { display: none; }
+  .starter-chip { flex: none; }
+  .starters-label { flex: none; }
+}

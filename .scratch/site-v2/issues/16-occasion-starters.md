@@ -4,15 +4,22 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done on staging
 
-- [ ] Eight chips above the Intro box, in this order: 🎂 Birthday, 💍 Wedding, 💞 Anniversary, 🍻 Stag do, 🥂 Hen do, 🏢 Work do, 👋 Leaving do, ✨ Just because. They sit on two rows on a phone.
-- [ ] Tapping a chip fills the box with one of its three starters, moving to the next one on each tap
-- [ ] After filling, the first `[…]` slot is selected in the box, so typing replaces it
-- [ ] A chip replaces the box's text only if the box is empty or still holds an unedited starter; otherwise it asks "Replace your text?" first
-- [ ] While any `[…]` slot is left, Play shows "Fill in the [ ] bits first 🙂" and sends nothing, so no Play is used up
-- [ ] The starters live in `site/src/lib/desk/starters.json`, next to `jingles.json`
-- [ ] Dedication pages are unchanged: no chips, and the occasion isn't stored or shown
+- [x] Eight chips above the Intro box, in this order: 🎂 Birthday, 💍 Wedding, 💞 Anniversary, 🍻 Stag do, 🥂 Hen do, 🏢 Work do, 👋 Leaving do, ✨ Just because. Two rows on desktop; one swipeable row on a phone (see Notes).
+- [x] Tapping a chip fills the box with one of its three starters, moving to the next one on each tap
+- [x] After filling, the first `[…]` slot is selected in the box, so typing replaces it
+- [x] A chip replaces the box's text only if the box is empty or still holds an unedited starter; otherwise it asks "Replace your text?" first
+- [x] While any `[…]` slot is left, Play shows "Fill in the [ ] bits first 🙂" and sends nothing, so no Play is used up
+- [x] The starters live in `site/src/lib/desk/starters.json`, next to `jingles.json`
+- [x] Dedication pages are unchanged: no chips, and the occasion isn't stored or shown
+
+## Notes
+
+- Built in `site/src/lib/desk/starters.json` (generated from the approved lines below), `starters.ts` (slot finding, the Play guard, when a chip may replace text) with tests, and `PlayPanel.svelte`.
+- Checked headless on staging: a tap fills the box and selects `[name]`, typing replaces it, a second tap moves to the next line, a chip on edited text asks "Replace your text?" (cancel keeps the text), and Play with a slot left shows the message and sends nothing to `/api/intro`.
+- **Changed from the plan:** on a 375px phone, wrapped chips took five rows and pushed the Intro box far down. So on screens under 600px they're one row you swipe sideways, cut off at the edge to hint at the rest.
+- Found while testing: on a phone the whole desk page scrolls sideways (565px wide on a 375px screen). The cause is the decks and mixer grid from the v1 stylesheet, not the chips, and About and Privacy are fine.
 
 ## Decisions (grilling session, 2026-10-02)
 

@@ -5,6 +5,7 @@
 	import { SpotifyEmbed } from '$lib/spotify/embed';
 	import { TrackIds } from '$lib/track-ids/player';
 	import { renderIntro, type IntroStatus } from './intro';
+	import { canReplaceSilently, firstSlot, hasSlot, OCCASIONS } from './starters';
 	import { onJingle, pete } from './pete-audio';
 	import { decks } from './state.svelte';
 
@@ -19,6 +20,10 @@
 	let embedEl: HTMLDivElement;
 	let embed: SpotifyEmbed;
 	let playButton: HTMLButtonElement;
+	let textBox: HTMLTextAreaElement;
+	// Occasion starters (ticket 16): the last one put in the box, and how far through each chip's lines
+	let lastStarter: string | null = null;
+	const nextLine: Record<string, number> = {};
 	let trackIds: TrackIds;
 	let introAudio: HTMLAudioElement;
 	let hasEmbed = $state(false);
@@ -61,9 +66,32 @@
 		});
 	});
 
+	/** Fill the box with the occasion's next starter and select its first slot, so typing replaces it. */
+	async function useStarter(occasion: (typeof OCCASIONS)[number]) {
+		if (!canReplaceSilently(text, lastStarter) && !confirm('Replace your text?')) return;
+		const i = nextLine[occasion.id] ?? 0;
+		nextLine[occasion.id] = (i + 1) % occasion.lines.length;
+		text = lastStarter = occasion.lines[i];
+		message = '';
+		await tick();
+		selectSlot();
+	}
+
+	function selectSlot() {
+		const slot = firstSlot(text);
+		textBox.focus();
+		if (slot) textBox.setSelectionRange(slot.start, slot.end);
+	}
+
 	async function play() {
 		const line = text.trim();
 		if (busy || linkInvalid || (!line && !parsed)) return;
+		// Checked before anything is sent, so a half-filled starter never uses up a Play
+		if (hasSlot(line)) {
+			message = 'Fill in the [ ] bits first 🙂';
+			selectSlot();
+			return;
+		}
 		message = '';
 		sentUrl = '';
 		trackIds.unlock();
@@ -145,8 +173,15 @@
 	<div class="section-label"><span class="led"></span>On Air — Pete Introduces Your Track</div>
 	<div class="intro-badge">AI voice, not Pete Tong</div>
 
+	<div class="starters" role="group" aria-label="Occasion starters">
+		<span class="starters-label">Need an idea?</span>
+		{#each OCCASIONS as occasion (occasion.id)}
+			<button type="button" class="starter-chip" onclick={() => useStarter(occasion)}>{occasion.emoji} {occasion.label}</button>
+		{/each}
+	</div>
 	<div class="voice-input-row">
 		<textarea
+			bind:this={textBox}
 			class="voice-input intro-text"
 			rows="3"
 			placeholder="What should Pete say? e.g. This one goes out to Sam, who still owes me a tenner."
