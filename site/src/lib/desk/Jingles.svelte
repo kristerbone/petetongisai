@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import JINGLES from './jingles.json';
-	import { jingleSpeaking, pete } from './pete-audio';
+	import { jingleSpeaking, pete } from './pete-audio.svelte';
 
 	// Rendered once in Pete's voice by scripts/render-lines.mjs; served as static files
 	let players: Record<string, HTMLAudioElement> = {};

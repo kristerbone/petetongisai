@@ -1,5 +1,5 @@
 import type { SpotifyEmbed } from '$lib/spotify/embed';
-import { pete } from '$lib/desk/pete-audio';
+import { pete } from '$lib/desk/pete-audio.svelte';
 import { PIECES, type Form } from './lines';
 import { matchTrack, type ListedTrack } from './match';
 import { TrackIdSession, type Announcement, type Piece } from './session';

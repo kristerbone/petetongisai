@@ -6,8 +6,7 @@
 	import { TrackIds } from '$lib/track-ids/player';
 	import { renderIntro, type IntroStatus } from './intro';
 	import { canReplaceSilently, firstSlot, hasSlot, OCCASIONS } from './starters';
-	import { onJingle, pete } from './pete-audio';
-	import { decks } from './state.svelte';
+	import { onJingle, pete } from './pete-audio.svelte';
 
 	const MAX_CHARS = 500;
 	// A silent WAV, played inside the tap so the Intro may play later without one (Safari)
@@ -45,7 +44,7 @@
 		introAudio = new Audio();
 		embed = new SpotifyEmbed(embedEl, {
 			onPlayingChange: (playing) => {
-				decks.A.playing = playing; // the decks are decorative: they follow the embed
+				pete.music = playing; // Deck A follows the embed
 				// Someone pressed play on the embed itself mid-Intro: Pete never talks over the music
 				if (playing && !introAudio.paused) introAudio.pause();
 			},
