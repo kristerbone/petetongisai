@@ -690,3 +690,6 @@ body {
 .dedication-own { text-align: center; margin-top: 16px; font-size: 12px; }
 .send-btn { margin-top: 12px; }
 .sent-link { display: flex; gap: 8px; margin-top: 12px; }
+.dedication-remove { text-align: center; margin-top: 20px; }
+.dedication-remove button { background: none; border: none; color: #555; font-size: 11px; text-decoration: underline; cursor: pointer; font-family: inherit; }
+.dedication-remove button:hover { color: #ff3333; }

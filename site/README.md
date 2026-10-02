@@ -35,5 +35,5 @@ npm run sst -- secret set AnthropicApiKey <sk-ant-…> --stage <stage>
 - `src/lib/desk/`: decks, mixer, Jingles (still browser text-to-speech) and the Play panel (`PlayPanel.svelte`, `intro.ts`).
 - `src/lib/spotify/`: Spotify link parsing and the iFrame API embed.
 - `src/routes/api/intro/`: Play with text. Counts the IP's hourly limit (`lib/server/rate-limit*.ts`, DynamoDB), checks the text with Claude Haiku (`lib/server/intro-check.ts`), renders through `../voice-service` (`lib/server/modal-voice.ts`), and holds the Intro in S3 for Send (`lib/server/intros.ts`).
-- `src/routes/api/dedications/` + `src/routes/d/[id]/`: Send turns a held Intro into a Dedication (`lib/server/dedications.ts`, DynamoDB `Dedications`), and the Dedication page plays it.
+- `src/routes/api/dedications/` + `src/routes/d/[id]/`: Send turns a held Intro into a Dedication (`lib/server/dedications.ts`, DynamoDB `Dedications`), and the Dedication page plays it. Any visitor can remove one (`?/remove`), and unopened ones Fade after `FADE_AFTER_DAYS` through DynamoDB TTL; `functions/fader.ts` deletes the audio whenever a record goes.
 - `src/app.css`: the v1 stylesheet, used as-is.

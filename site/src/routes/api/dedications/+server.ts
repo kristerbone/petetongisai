@@ -1,5 +1,5 @@
 import { error, json } from '@sveltejs/kit';
-import { createDedication } from '$lib/server/dedications';
+import { createDedication, DedicationRemoved } from '$lib/server/dedications';
 import { isIntroHeld } from '$lib/server/intros';
 import { parseSpotifyLink } from '$lib/spotify/link';
 import type { RequestHandler } from './$types';
@@ -15,6 +15,12 @@ export const POST: RequestHandler = async ({ request, url }) => {
 	if (spotifyUri && !link) error(400, 'That’s not a Spotify track or playlist link');
 	if (!(await isIntroHeld(introId))) error(410, 'That Intro has expired; press Play again to make a new one');
 
-	const id = await createDedication(introId, link?.uri ?? null);
+	let id: string;
+	try {
+		id = await createDedication(introId, link?.uri ?? null);
+	} catch (e) {
+		if (e instanceof DedicationRemoved) error(410, 'That Dedication was removed; press Play to make a new one');
+		throw e;
+	}
 	return json({ id, url: new URL(`/d/${id}`, url).toString() }, { status: 201 });
 };

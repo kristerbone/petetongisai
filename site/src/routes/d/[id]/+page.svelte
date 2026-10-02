@@ -67,6 +67,9 @@
 			{#if message}<div class="last-spoken voice-status" style:display="block">{message}</div>{/if}
 			<div class="spotify-embed" class:visible={hasEmbed}><div bind:this={embedEl}></div></div>
 			<p class="dedication-own"><a href="/">Send your own Dedication</a></p>
+			<form method="POST" action="?/remove" class="dedication-remove">
+				<button>If this offended you, click here to remove it</button>
+			</form>
 		{/if}
 	</div>
 </div>

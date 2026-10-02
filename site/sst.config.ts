@@ -1,6 +1,8 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
 const DOMAIN = "petetongisai.com";
+// A Dedication nobody opens for this long Fades (ADR 0003)
+const FADE_AFTER_DAYS = "30";
 
 export default $config({
   app(input) {
@@ -29,11 +31,20 @@ export default $config({
     const dedications = new sst.aws.Dynamo("Dedications", {
       fields: { id: "string" },
       primaryIndex: { hashKey: "id" },
+      ttl: "fadesAt",
+      stream: "old-image",
     });
     // Rendered Intros: intros/ is held an hour for Send; dedications/ keeps each Dedication's copy
     const intros = new sst.aws.Bucket("Intros", {
       lifecycle: [{ id: "expire-intros", prefix: "intros/", expiresIn: "1 day" }],
     });
+
+    // Whenever a Dedication record goes (removed, or faded by TTL), delete its audio too
+    dedications.subscribe(
+      "Fader",
+      { handler: "functions/fader.handler", link: [intros] },
+      { filters: [{ eventName: ["REMOVE"] }] },
+    );
 
     // Only production gets the real domain; other stages use the CloudFront URL
     const site = new sst.aws.SvelteKit("Site", {
@@ -42,6 +53,7 @@ export default $config({
         MODAL_VOICE_URL: "https://krister-bone--pete-voice-api.modal.run",
         MODAL_PROXY_TOKEN_ID: modalTokenId.value,
         MODAL_PROXY_TOKEN_SECRET: modalTokenSecret.value,
+        FADE_AFTER_DAYS,
       },
       domain: $app.stage === "production" ? { name: DOMAIN, redirects: [`www.${DOMAIN}`] } : undefined,
     });

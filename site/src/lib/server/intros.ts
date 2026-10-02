@@ -1,4 +1,4 @@
-import { CopyObjectCommand, GetObjectCommand, HeadObjectCommand, NoSuchKey, NotFound, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { CopyObjectCommand, DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, NoSuchKey, NotFound, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Resource } from 'sst';
 
 const s3 = new S3Client({});
@@ -57,4 +57,8 @@ export async function dedicationAudio(dedicationId: string): Promise<Uint8Array 
 		if (e instanceof NoSuchKey) return null;
 		throw e;
 	}
+}
+
+export async function deleteDedicationAudio(dedicationId: string) {
+	await s3.send(new DeleteObjectCommand({ Bucket: Resource.Intros.name, Key: dedicationKey(dedicationId) }));
 }
