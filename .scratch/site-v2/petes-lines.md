@@ -1,12 +1,12 @@
 # Pete's lines
 
-**Status:** Jingles approved and live (ticket 09). Everything from section 2 down is still a draft awaiting approval.
+**Status:** approved by the owner, 2026-10-02. Jingles are live (ticket 09); Sign-offs and Track IDs are for tickets 13 and 14.
 
 Every fixed line Pete says on the site (ticket 03). Each line is an original, written in his on-air style as heard in the pipeline's transcripts of five shows. None mentions the BBC, Radio 1, BBC Sounds or any show segment: no Essential Mix, Essential New Tune, Hot Mix, Club Heat Mix or Eclectic Selection.
 
 **One rule throughout:** Pete never says "I'm Pete Tong" or "It's Pete Tong with you" as if he were the real one. Where a line names him, it winks at the AI (see Jingles 4, 6 and 8). That backs up the "AI voice, not Pete Tong" label rather than undercutting it.
 
-Mark anything to cut or change. Lines in the voice get rendered once and cached, so shorter is safer: the fine-tuned voice drops words more often in long sentences.
+Lines in the voice get rendered once and cached, so shorter is safer: the fine-tuned voice drops words more often in long sentences.
 
 ## How he actually talks (source patterns)
 
@@ -38,7 +38,7 @@ Not used: "Up and At It", "White Isle", "Is AI" (replaced by #8), "Tune!" (the v
 
 ## 2. Sign-offs (end of every Dedication)
 
-Each one invites the listener to drop a playlist in the box for Track IDs. Pre-rendered once (ticket 14).
+Each one invites the listener to drop a playlist in the box for Track IDs. All four are used, rotating so repeat listeners hear a different one; each is pre-rendered once (ticket 14).
 
 1. "And that's your Dedication. Got a playlist? Drop it in the box below, and I'll tell you what's playing, nonstop, back to back. Until next time… see ya."
 2. "Lovely stuff. Now, if you've got a playlist, pop it in the box and I'll back-announce every tune for you. All that's left to say is… see ya."
@@ -48,6 +48,8 @@ Each one invites the listener to drop a playlist in the box for Track IDs. Pre-r
 ## 3. Track IDs
 
 Pete back-announces the last two tracks, newest first, in the pause before the next one. Each piece is rendered and cached separately, so a track's line is rendered once and reused by everyone who plays that track. `{title}` and `{artist}` come from MusicBrainz via the ISRC (ticket 13), never from Spotify's own title.
+
+Joining separately rendered pieces sounded fine in testing (three sample Track IDs, `voice-bakeoff/out/lines-preview/`), so pieces are rendered and cached separately.
 
 A Track ID is put together as:
 
