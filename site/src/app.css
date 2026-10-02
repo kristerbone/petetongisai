@@ -682,3 +682,11 @@ body {
 .spotify-embed.visible { display: block; }
 .spotify-embed iframe { border-radius: 12px; }
 .text-count + .voice-input-row { margin-top: 4px; }
+
+.dedication { max-width: 560px; }
+.dedication-play { width: 100%; padding: 18px; font-size: 16px; margin-top: 8px; }
+.dedication-faded { text-align: center; color: #aaa; padding: 24px 0; }
+.dedication-faded a, .dedication-own a { color: #ff6b35; }
+.dedication-own { text-align: center; margin-top: 16px; font-size: 12px; }
+.send-btn { margin-top: 12px; }
+.sent-link { display: flex; gap: 8px; margin-top: 12px; }

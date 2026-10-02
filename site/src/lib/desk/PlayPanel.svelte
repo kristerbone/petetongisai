@@ -17,12 +17,21 @@
 	let embed: SpotifyEmbed;
 	let introAudio: HTMLAudioElement;
 	let hasEmbed = $state(false);
+	// The last Intro that played, which Send can turn into a Dedication
+	let sendable = $state<{ introId: string; text: string; link: string } | null>(null);
+	let sending = $state(false);
+	let sentUrl = $state('');
+	let copied = $state(false);
+	let canShare = $state(false);
 
 	const parsed = $derived(link.trim() ? parseSpotifyLink(link) : null);
 	const linkInvalid = $derived(link.trim() !== '' && !parsed);
 	const busy = $derived(stage === 'checking' || stage === 'warming');
+	// Editing the text or link after Play means Send would no longer match what was heard
+	const canSend = $derived(!!sendable && sendable.text === text.trim() && sendable.link === link.trim());
 
 	onMount(() => {
+		canShare = 'share' in navigator;
 		introAudio = new Audio();
 		embed = new SpotifyEmbed(embedEl, {
 			onPlayingChange: (playing) => {
@@ -38,6 +47,7 @@
 		const line = text.trim();
 		if (busy || linkInvalid || (!line && !parsed)) return;
 		message = '';
+		sentUrl = '';
 
 		if (line) {
 			introAudio.src = SILENCE;
@@ -56,6 +66,7 @@
 				return;
 			}
 			stage = 'intro';
+			sendable = { introId: result.id, text: line, link: link.trim() };
 			introAudio.src = URL.createObjectURL(result.audio);
 			const finished = new Promise((resolve) => (introAudio.onended = introAudio.onpause = resolve));
 			try {
@@ -76,6 +87,34 @@
 			embed.play();
 		}
 		stage = 'idle';
+	}
+
+	async function send() {
+		if (!sendable || sending) return;
+		sending = true;
+		message = '';
+		const res = await fetch('/api/dedications', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ introId: sendable.introId, spotifyUri: parsed?.uri ?? null })
+		});
+		sending = false;
+		if (!res.ok) {
+			message = (await res.json().catch(() => null))?.message ?? 'Couldn’t send that one. Try again.';
+			if (res.status === 410) sendable = null;
+			return;
+		}
+		sentUrl = (await res.json()).url;
+	}
+
+	async function copy() {
+		await navigator.clipboard.writeText(sentUrl);
+		copied = true;
+		setTimeout(() => (copied = false), 1500);
+	}
+
+	function share() {
+		navigator.share({ title: 'Someone sent you a Dedication', url: sentUrl }).catch(() => {});
 	}
 </script>
 
@@ -118,6 +157,20 @@
 		</div>
 	{:else if message}
 		<div class="last-spoken voice-status" style:display="block" aria-live="polite">{message}</div>
+	{/if}
+
+	{#if canSend && !sentUrl}
+		<button class="spotify-connect-btn send-btn" onclick={send} disabled={sending}>
+			{sending ? 'Sending…' : '✉ Send this as a Dedication'}
+		</button>
+	{/if}
+	{#if sentUrl}
+		<div class="sent-link">
+			<input class="voice-input" readonly value={sentUrl} onfocus={(e) => e.currentTarget.select()} />
+			<button class="speak-btn" onclick={copy}>{copied ? 'Copied!' : 'Copy'}</button>
+			{#if canShare}<button class="speak-btn" onclick={share}>Share</button>{/if}
+		</div>
+		<div class="last-spoken voice-status" style:display="block">Anyone with this link can hear it. It fades if nobody opens it for 30 days.</div>
 	{/if}
 
 	<div class="spotify-embed" class:visible={hasEmbed}><div bind:this={embedEl}></div></div>

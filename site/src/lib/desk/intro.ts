@@ -1,6 +1,6 @@
 export type IntroStatus = 'checking' | 'warming';
 export type IntroResult =
-	| { ok: true; audio: Blob }
+	| { ok: true; id: string; audio: Blob }
 	| { ok: false; reason: 'rejected' | 'rate-limited' | 'off-air' | 'error'; retryAfterS?: number; message?: string };
 
 const POLL_MS = 1500;
@@ -31,7 +31,7 @@ export async function renderIntro(text: string, onStatus: (s: IntroStatus) => vo
 		}
 		if (res.status === 402) return { ok: false, reason: 'off-air' };
 		if (!res.ok) return { ok: false, reason: 'error' };
-		return { ok: true, audio: await res.blob() };
+		return { ok: true, id, audio: await res.blob() };
 	}
 	return { ok: false, reason: 'error', message: 'Pete took too long; try again' };
 }

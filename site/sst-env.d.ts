@@ -10,6 +10,10 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "Dedications": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "Intros": {
       "name": string
       "type": "sst.aws.Bucket"
