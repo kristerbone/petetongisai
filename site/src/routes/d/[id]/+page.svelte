@@ -10,6 +10,10 @@
 
 	let { data }: PageProps = $props();
 
+	// A silent clip played inside the tap unlocks this element for iOS; the Intro is fetched and set afterwards
+	const SILENCE = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
+	let introAudio: HTMLAudioElement;
+
 	let stage = $state<'ready' | 'intro' | 'music' | 'done'>('ready');
 	let message = $state('');
 	let embedEl = $state<HTMLDivElement>();
@@ -22,6 +26,7 @@
 	let playlistInvalid = $state(false);
 
 	onMount(() => {
+		introAudio = new Audio();
 		embed = new SpotifyEmbed(embedEl!, {
 			onTrackStart: (uri, durationMs) => trackIds.trackStarted(uri, durationMs),
 			// With music, the Sign-off follows the final Track ID
@@ -34,12 +39,19 @@
 		if (data.faded || stage !== 'ready') return;
 		stage = 'intro';
 		trackIds.unlock();
-		// Created inside the tap, so the browser lets it play
-		const audio = new Audio(`/d/${data.id}/intro.wav`);
+		// iOS only lets an element play if it was started inside the tap, so unlock it first
+		introAudio.src = SILENCE;
+		introAudio.play().catch(() => {});
 		try {
-			await audio.play();
-			await new Promise((resolve) => (audio.onended = resolve));
-		} catch {
+			// Fetched whole: iOS Safari won't stream media from a server that ignores Range requests
+			const res = await fetch(`/d/${data.id}/intro.wav`);
+			if (!res.ok) throw new Error(`Intro ${res.status}`);
+			introAudio.src = URL.createObjectURL(await res.blob());
+			const finished = new Promise((resolve) => (introAudio.onended = resolve));
+			await introAudio.play();
+			await finished;
+		} catch (e) {
+			console.warn('Intro playback failed', e);
 			message = 'Your browser blocked the Intro; tap Play again.';
 			stage = 'ready';
 			return;
