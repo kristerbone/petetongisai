@@ -50,6 +50,26 @@ export class TrackIds {
 	unlock() {
 		this.ctx ??= new AudioContext();
 		this.ctx.resume().catch(() => {});
+		// iOS Safari wants a sound started inside the tap before it lets the context speak later
+		const silent = this.ctx.createBufferSource();
+		silent.buffer = this.ctx.createBuffer(1, 1, 22050);
+		silent.connect(this.ctx.destination);
+		silent.start(0);
+	}
+
+	/** Play a whole audio file through the unlocked context; unlike say(), failures throw. */
+	async playFile(url: string): Promise<void> {
+		const res = await fetch(url);
+		if (!res.ok) throw new Error(`${url}: ${res.status}`);
+		const buffer = await this.decode(await res.arrayBuffer());
+		const ctx = this.ctx!;
+		await ctx.resume();
+		const source = ctx.createBufferSource();
+		source.buffer = buffer;
+		source.connect(ctx.destination);
+		const ended = new Promise<void>((resolve) => (source.onended = () => resolve()));
+		source.start();
+		await ended;
 	}
 
 	/** New music loaded: a fresh session, so Pete doesn't back-announce the last one. */

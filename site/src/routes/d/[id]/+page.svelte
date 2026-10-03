@@ -10,10 +10,6 @@
 
 	let { data }: PageProps = $props();
 
-	// A silent clip played inside the tap unlocks this element for iOS; the Intro is fetched and set afterwards
-	const SILENCE = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
-	let introAudio: HTMLAudioElement;
-
 	let stage = $state<'ready' | 'intro' | 'music' | 'done'>('ready');
 	let message = $state('');
 	let embedEl = $state<HTMLDivElement>();
@@ -26,7 +22,6 @@
 	let playlistInvalid = $state(false);
 
 	onMount(() => {
-		introAudio = new Audio();
 		embed = new SpotifyEmbed(embedEl!, {
 			onTrackStart: (uri, durationMs) => trackIds.trackStarted(uri, durationMs),
 			// With music, the Sign-off follows the final Track ID
@@ -39,20 +34,12 @@
 		if (data.faded || stage !== 'ready') return;
 		stage = 'intro';
 		trackIds.unlock();
-		// iOS only lets an element play if it was started inside the tap, so unlock it first
-		introAudio.src = SILENCE;
-		introAudio.play().catch(() => {});
 		try {
-			// Fetched whole: iOS Safari won't stream media from a server that ignores Range requests
-			const res = await fetch(`/d/${data.id}/intro.wav`);
-			if (!res.ok) throw new Error(`Intro ${res.status}`);
-			introAudio.src = URL.createObjectURL(await res.blob());
-			const finished = new Promise((resolve) => (introAudio.onended = resolve));
-			await introAudio.play();
-			await finished;
+			// Web Audio, unlocked in the tap above: iOS Safari is fussy about streaming media elements
+			await trackIds.playFile(`/d/${data.id}/intro.wav`);
 		} catch (e) {
 			console.warn('Intro playback failed', e);
-			message = 'Your browser blocked the Intro; tap Play again.';
+			message = `Couldn’t play the Intro (${e instanceof Error ? e.message : e}); tap Play again.`;
 			stage = 'ready';
 			return;
 		}
