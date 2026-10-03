@@ -5,6 +5,7 @@
 	import { parseSpotifyLink } from '$lib/spotify/link';
 	import { SpotifyEmbed } from '$lib/spotify/embed';
 	import { TrackIds } from '$lib/track-ids/player';
+	import SiteFooter from '$lib/site/SiteFooter.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -84,7 +85,7 @@
 
 <div class="desk dedication">
 	<div class="desk-header">
-		<h1>Pete Tong Is AI</h1>
+		<h1><a href="/">Pete Tong Is AI</a></h1>
 		<p>Someone sent you a Dedication</p>
 	</div>
 
@@ -117,10 +118,12 @@
 					{/if}
 				</form>
 			{/if}
-			<p class="dedication-own"><a href="/">Send your own Dedication</a></p>
+			<p class="dedication-own"><a class="speak-btn" href="/">Send your own Dedication</a></p>
 			<form method="POST" action="?/remove" class="dedication-remove">
 				<button>If this offended you, click here to remove it</button>
 			</form>
 		{/if}
 	</div>
+
+	<SiteFooter buttons={false} />
 </div>

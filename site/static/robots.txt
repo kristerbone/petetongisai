@@ -1,3 +1,5 @@
-# allow crawling everything by default
+# allow crawling everything by default, except the API
 User-agent: *
-Disallow:
+Disallow: /api/
+
+Sitemap: https://petetongisai.com/sitemap.xml

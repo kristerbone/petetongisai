@@ -6,7 +6,7 @@
 	let { buttons = true }: { buttons?: boolean } = $props();
 </script>
 
-<!-- Desk, About and Privacy only: Dedication pages carry no money buttons (ticket 07) -->
+<!-- Dedication pages show this footer too, but without the money buttons (ticket 07) -->
 <footer class="site-footer">
 	{#if buttons}<MoneyButtons />{/if}
 	<p class="disclaimer">

@@ -298,7 +298,9 @@ body {
 .dedication-play { width: 100%; padding: 18px; font-size: 16px; margin-top: 8px; }
 .dedication-faded { text-align: center; color: #aaa; padding: 24px 0; }
 .dedication-faded a, .dedication-own a { color: #ff6b35; }
-.dedication-own { text-align: center; margin-top: 16px; font-size: 12px; }
+.dedication-own { text-align: center; margin-top: 16px; }
+.dedication-own a { display: inline-block; text-decoration: none; color: inherit; }
+.desk-header h1 a { color: inherit; text-decoration: none; }
 .send-btn { margin-top: 12px; }
 .sent-link { display: flex; gap: 8px; margin-top: 12px; }
 .dedication-remove { text-align: center; margin-top: 20px; }

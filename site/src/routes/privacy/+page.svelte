@@ -4,6 +4,7 @@
 
 <svelte:head>
 	<title>Privacy — Pete Tong Is AI</title>
+	<meta name="description" content="What Pete Tong Is AI stores, for how long, and who can see it." />
 </svelte:head>
 
 <!-- Keep in step with the code: rate-limit*.ts, intros.ts, dedications.ts, track-ids.ts, sst.config.ts -->
