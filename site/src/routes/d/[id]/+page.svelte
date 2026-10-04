@@ -28,6 +28,9 @@
 	onMount(() => {
 		fallbackAudio = new Audio();
 		embed = new SpotifyEmbed(embedEl!, {
+			onPlayingChange: (playing) => {
+				if (playing) message = '';
+			},
 			onTrackStart: (uri, durationMs) => trackIds.trackStarted(uri, durationMs),
 			// With music, the Sign-off follows the final Track ID
 			onEnded: () => trackIds.ended().then(signOff)
@@ -66,6 +69,9 @@
 			trackIds.start(data.spotifyUri);
 			await embed.load(data.spotifyUri);
 			embed.play();
+			// iOS ignores a play() that doesn't come from a tap, and the Intro took longer than a tap lasts
+			await new Promise((resolve) => setTimeout(resolve, 3000));
+			if (!embed.playing) message = 'Tap ▶ on the player below to start the music.';
 		} else {
 			stage = 'done';
 			await signOff();
