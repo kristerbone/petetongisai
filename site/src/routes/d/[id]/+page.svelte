@@ -10,6 +10,10 @@
 
 	let { data }: PageProps = $props();
 
+	// A silent clip played in the tap unlocks this element, the fallback if Web Audio can't play the Intro
+	const SILENCE = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
+	let fallbackAudio: HTMLAudioElement;
+
 	let stage = $state<'ready' | 'intro' | 'music' | 'done'>('ready');
 	let message = $state('');
 	let embedEl = $state<HTMLDivElement>();
@@ -22,6 +26,7 @@
 	let playlistInvalid = $state(false);
 
 	onMount(() => {
+		fallbackAudio = new Audio();
 		embed = new SpotifyEmbed(embedEl!, {
 			onTrackStart: (uri, durationMs) => trackIds.trackStarted(uri, durationMs),
 			// With music, the Sign-off follows the final Track ID
@@ -34,14 +39,26 @@
 		if (data.faded || stage !== 'ready') return;
 		stage = 'intro';
 		trackIds.unlock();
+		fallbackAudio.src = SILENCE;
+		fallbackAudio.play().catch(() => {});
+		const url = `/d/${data.id}/intro.wav`;
 		try {
-			// Web Audio, unlocked in the tap above: iOS Safari is fussy about streaming media elements
-			await trackIds.playFile(`/d/${data.id}/intro.wav`);
+			await trackIds.playFile(url);
 		} catch (e) {
-			console.warn('Intro playback failed', e);
-			message = `Couldn’t play the Intro (${e instanceof Error ? e.message : e}); tap Play again.`;
-			stage = 'ready';
-			return;
+			console.warn('Intro via Web Audio failed, trying an audio element', e);
+			try {
+				const res = await fetch(url);
+				if (!res.ok) throw new Error(`${url}: ${res.status}`);
+				fallbackAudio.src = URL.createObjectURL(await res.blob());
+				const finished = new Promise((resolve) => (fallbackAudio.onended = resolve));
+				await fallbackAudio.play();
+				await finished;
+			} catch (e2) {
+				console.warn('Intro playback failed', e2);
+				message = `Couldn’t play the Intro (${e2 instanceof Error ? e2.message : e2}); tap Play again.`;
+				stage = 'ready';
+				return;
+			}
 		}
 		if (data.spotifyUri) {
 			stage = 'music';

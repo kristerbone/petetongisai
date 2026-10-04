@@ -13,6 +13,10 @@ const GAP_S = 0.15; // between pieces
 const TARGET_RMS = 0.1; // the rendered lines come out quieter or louder than the pre-rendered pieces
 const CLOSER_ODDS = 1 / 3;
 
+// Safari before 14.5 only has the prefixed one
+const newAudioContext = () =>
+	new (window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+
 const pick = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
 
 /**
@@ -48,7 +52,13 @@ export class TrackIds {
 
 	/** Call inside the Play tap: the browser only lets audio start from one. */
 	unlock() {
-		this.ctx ??= new AudioContext();
+		// iOS 16.4+: let Web Audio play with the ringer switch on silent, as the Spotify embed does
+		try {
+			(navigator as unknown as { audioSession?: { type: string } }).audioSession!.type = 'playback';
+		} catch {
+			// Not supported: older iOS and other browsers
+		}
+		this.ctx ??= newAudioContext();
 		this.ctx.resume().catch(() => {});
 		// iOS Safari wants a sound started inside the tap before it lets the context speak later
 		const silent = this.ctx.createBufferSource();
@@ -249,8 +259,13 @@ export class TrackIds {
 	}
 
 	private decode(data: ArrayBuffer) {
-		this.ctx ??= new AudioContext();
-		return this.ctx.decodeAudioData(data);
+		this.ctx ??= newAudioContext();
+		const ctx = this.ctx;
+		// Safari before 14.1 only has the callback form and returns nothing
+		return new Promise<AudioBuffer>((resolve, reject) => {
+			const result = ctx.decodeAudioData(data, resolve, reject);
+			result?.then?.(resolve, reject);
+		});
 	}
 
 	private play(buffers: AudioBuffer[]): Promise<void> {
