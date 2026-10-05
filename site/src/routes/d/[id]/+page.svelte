@@ -22,9 +22,9 @@
 	let embed: SpotifyEmbed;
 	let trackIds: TrackIds;
 	let hasEmbed = $state(false);
-	// The listener pressed play on the embed itself, so the page may pause and resume it (iOS)
-	let tapped = $state(false);
 	let loading: Promise<void> | undefined;
+	// The Sign-off and Track IDs wait until Pete has spoken; music that ends first (a 30 second preview) is only filler
+	let introHeard = false;
 	let signedOff = false;
 	let showBox = $state(false);
 	let playlist = $state('');
@@ -37,17 +37,15 @@
 				pete.music = playing;
 				if (playing) message = '';
 			},
-			onTapped: () => (tapped = true),
 			onTrackStart: (uri, durationMs) => trackIds.trackStarted(uri, durationMs),
 			// With music, the Sign-off follows the final Track ID
-			onEnded: () => trackIds.ended().then(signOff)
+			onEnded: () => (introHeard ? trackIds.ended().then(signOff) : undefined)
 		});
 		trackIds = new TrackIds(embed);
 		if (!data.faded && data.spotifyUri) {
-			// Shown up front: the first press of its play button is what lets Pete pause and resume it later
+			// Shown up front: a press of its play button gives filler music, and the page may pause and resume it (iOS)
 			hasEmbed = true;
 			trackIds.start(data.spotifyUri);
-			embed.holdForTap();
 			loading = embed.load(data.spotifyUri);
 		}
 	});
@@ -56,6 +54,9 @@
 		if (data.faded || stage !== 'ready') return;
 		stage = 'intro';
 		trackIds.unlock();
+		// Filler the listener started: Pete never talks over music, so pause it and pick it up afterwards
+		const musicWasPlaying = embed.playing;
+		embed.pause({ hold: true });
 		introAudio.src = SILENCE;
 		introAudio.play().catch(() => {});
 		const url = `/d/${data.id}/intro.wav`;
@@ -76,22 +77,24 @@
 				console.warn('Intro playback failed', e2);
 				message = `Couldn’t play the Intro (${e2 instanceof Error ? e2.message : e2}); tap Play again.`;
 				pete.speaking = false;
+				if (musicWasPlaying) embed.resume();
 				stage = 'ready';
 				return;
 			}
 		}
 		pete.speaking = false;
+		introHeard = true;
 		if (data.spotifyUri) {
 			stage = 'music';
 			await loading;
-			if (tapped) {
+			if (musicWasPlaying) {
 				embed.resume();
 			} else {
 				embed.play();
-				// iOS ignores a play() the page sends; the listener has to press play on the embed
-				await new Promise((resolve) => setTimeout(resolve, 3000));
-				if (!embed.playing) message = 'Tap ▶ on the player below to start the music.';
 			}
+			// iOS can ignore a play or resume the page sends; the listener then presses play on the embed
+			await new Promise((resolve) => setTimeout(resolve, 3000));
+			if (!embed.playing) message = 'Tap ▶ on the player below to start the music.';
 		} else {
 			stage = 'done';
 			await signOff();
@@ -139,7 +142,7 @@
 			<div class="intro-badge">AI voice, not Pete Tong</div>
 			<div class="spotify-embed" class:visible={hasEmbed}><div bind:this={embedEl}></div></div>
 			{#if data.spotifyUri && stage === 'ready'}
-				<p class="tap-hint">{tapped ? 'Music’s ready. Now press Play your Dedication.' : 'First tap ▶ on the player, then press Play your Dedication.'}</p>
+				<p class="tap-hint">Tap ▶ on the player for some music while you wait, then press Play your Dedication.</p>
 			{/if}
 			<button class="speak-btn dedication-play" onclick={play} disabled={stage !== 'ready'}>
 				{stage === 'ready' ? '▶ Play your Dedication' : stage === 'intro' ? 'Pete’s on…' : '♫'}

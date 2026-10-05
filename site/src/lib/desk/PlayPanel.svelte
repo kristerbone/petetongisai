@@ -26,10 +26,12 @@
 	let trackIds: TrackIds;
 	let introAudio: HTMLAudioElement;
 	let hasEmbed = $state(false);
-	// With a link, the Intro waits for the listener: they press play on the embed (unlocking it for iOS), then Hear Pete
-	let tapped = $state(false);
+	// With a link, the player shows while Pete's clip renders so the listener can start some music, and the
+	// Intro then waits for them to press Hear Pete, which pauses the music, plays Pete and picks the music up again
 	let readyIntro: Blob | null = null;
 	let loading: Promise<void> | undefined;
+	// Music that ends before Pete has spoken (a 30 second preview) is only filler: no Track ID for it
+	let fillerOnly = false;
 	// The last Intro that played, which Send can turn into a Dedication
 	let sendable = $state<{ introId: string; text: string; link: string } | null>(null);
 	let sending = $state(false);
@@ -49,12 +51,12 @@
 		embed = new SpotifyEmbed(embedEl, {
 			onPlayingChange: (playing) => {
 				pete.music = playing; // the Tunes lamp follows the embed
+				if (playing) message = '';
 				// Someone pressed play on the embed itself mid-Intro: Pete never talks over the music
-				if (playing && !introAudio.paused) introAudio.pause();
+				if (playing && !embed.held && !introAudio.paused) introAudio.pause();
 			},
-			onTapped: () => (tapped = true),
 			onTrackStart: (uri, durationMs) => trackIds.trackStarted(uri, durationMs),
-			onEnded: () => trackIds.ended()
+			onEnded: () => (fillerOnly ? undefined : trackIds.ended())
 		});
 		trackIds = new TrackIds(embed);
 		// A Jingle pauses the music and picks it back up afterwards
@@ -105,6 +107,12 @@
 			introAudio.src = SILENCE;
 			introAudio.play().catch(() => {});
 			embed.pause();
+			if (parsed) {
+				// Up now, so the listener can press its play button while the clip renders
+				hasEmbed = true;
+				trackIds.start(parsed.uri);
+				loading = embed.load(parsed.uri);
+			}
 
 			const result = await renderIntro(line, (s) => (stage = s));
 			if (!result.ok) {
@@ -122,14 +130,10 @@
 				await speak(result.audio);
 				return;
 			}
-			// With music, wait for the listener: their press of the embed's play button is what lets
-			// Pete pause and resume it on iOS, and the Hear Pete tap that follows unlocks Pete's audio
+			// With music, wait for the listener: the Hear Pete tap unlocks Pete's audio, and music they
+			// started on the embed is paused for Pete and resumed after (iOS lets a page do that, not start it)
 			readyIntro = result.audio;
-			tapped = false;
-			hasEmbed = true;
-			trackIds.start(parsed.uri);
-			embed.holdForTap();
-			loading = embed.load(parsed.uri);
+			fillerOnly = true;
 			stage = 'ready';
 			return;
 		}
@@ -144,10 +148,14 @@
 		stage = 'idle';
 	}
 
-	/** Play an Intro, then (when it was waiting on the listener) the music. */
+	/** Play an Intro, then (when it waited on the listener) bring the music back. */
 	async function speak(audio: Blob) {
+		const withMusic = !!readyIntro;
 		trackIds.unlock();
 		stage = 'intro';
+		// Pete never talks over music: pause what the listener started, held so it can't creep back in
+		const musicWasPlaying = withMusic && embed.playing;
+		if (withMusic) embed.pause({ hold: true });
 		introAudio.src = URL.createObjectURL(audio);
 		const finished = new Promise((resolve) => (introAudio.onended = introAudio.onpause = resolve));
 		try {
@@ -156,27 +164,26 @@
 			await finished;
 		} catch (e) {
 			console.warn('Intro playback failed', e);
-			message = 'Your browser blocked Pete; press Play again.';
-			stage = readyIntro ? 'ready' : 'idle';
+			message = 'Your browser blocked Pete; press Hear Pete again.';
+			if (musicWasPlaying) embed.resume();
+			stage = withMusic ? 'ready' : 'idle';
 			return;
 		} finally {
 			pete.speaking = false;
 		}
-		if (!readyIntro) {
+		if (!withMusic) {
 			stage = 'idle';
 			return;
 		}
 		readyIntro = null;
+		fillerOnly = false;
 		stage = 'music';
 		await loading;
-		if (tapped) {
-			embed.resume();
-		} else {
-			embed.play();
-			// iOS ignores a play() the page sends; the listener has to press play on the embed
-			await new Promise((resolve) => setTimeout(resolve, 3000));
-			if (!embed.playing) message = 'Tap ▶ on the player below to start the music.';
-		}
+		if (musicWasPlaying) embed.resume();
+		else embed.play();
+		// iOS can ignore a play or resume the page sends; the listener then presses play on the embed
+		await new Promise((resolve) => setTimeout(resolve, 3000));
+		if (!embed.playing) message = 'Tap ▶ on the player below to start the music.';
 		stage = 'idle';
 	}
 
@@ -254,14 +261,14 @@
 	{/if}
 
 	{#if stage === 'checking'}
-		<div class="last-spoken voice-status" style:display="block" aria-live="polite">Cueing Pete up…</div>
+		<div class="last-spoken voice-status" style:display="block" aria-live="polite">Cueing Pete up…{hasEmbed ? ' Tap ▶ on the player for some music while you wait.' : ''}</div>
 	{:else if stage === 'warming'}
 		<div class="last-spoken voice-status" style:display="block" aria-live="polite">
-			Warming up Pete… the first Intro after a quiet spell takes about a minute
+			Warming up Pete… the first Intro after a quiet spell takes about a minute{hasEmbed ? '. Tap ▶ on the player for some music while you wait.' : ''}
 		</div>
 	{:else if stage === 'ready'}
 		<div class="last-spoken voice-status" style:display="block" aria-live="polite">
-			{tapped ? 'Music’s ready. Now press Hear Pete.' : 'Pete’s ready. First tap ▶ on the player below, then press Hear Pete.'}
+			Pete’s ready. Press Hear Pete when you are: the music pauses while he talks, then carries on.
 		</div>
 		<button class="speak-btn dedication-play" onclick={hearPete}>▶ Hear Pete</button>
 	{:else if message}
