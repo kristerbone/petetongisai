@@ -320,7 +320,9 @@
 		</div>
 	{:else if stage === 'ready'}
 		<div class="last-spoken voice-status" style:display="block" aria-live="polite">
-			Pete’s ready. Press Hear Pete when you are: any music playing pauses while he talks, then carries on.
+			{parsed?.service === 'mixcloud' && !pete.music
+				? 'Pete’s ready. Press ▶ on the player first and the music will carry on after Pete, then press Hear Pete.'
+				: 'Pete’s ready. Press Hear Pete when you are: any music playing pauses while he talks, then carries on.'}
 		</div>
 		<button class="speak-btn dedication-play" onclick={hearPete}>▶ Hear Pete</button>
 	{:else if message}

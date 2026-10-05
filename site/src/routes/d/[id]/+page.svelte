@@ -170,6 +170,9 @@
 			<Lamps />
 			<div class="intro-badge">AI voice, not Pete Tong</div>
 			<div class="spotify-embed" class:visible={hasEmbed}><div bind:this={embedEl}></div></div>
+			{#if data.music?.startsWith('mixcloud:') && stage === 'ready' && !played && !pete.music}
+				<p class="tap-hint">Press ▶ on the player first and the music will carry on after Pete.</p>
+			{/if}
 			<button class="speak-btn dedication-play" onclick={play} disabled={stage !== 'ready'}>
 				{stage === 'ready' ? (played ? '↻ Play it again' : '▶ Play your Dedication') : stage === 'intro' ? 'Pete’s on…' : '♫'}
 			</button>
