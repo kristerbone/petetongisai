@@ -43,6 +43,8 @@ export type EmbedEvents = {
 	 * so the track's duration comes too, to tell which one it is.
 	 */
 	onTrackStart?: (uri: string, durationMs: number) => void;
+	/** The listener pressed play on the embed itself while holdForTap() was waiting; the music is held paused. */
+	onTapped?: () => void;
 	/** The last track finished and nothing else is coming. */
 	onEnded?: () => void;
 };
@@ -60,6 +62,10 @@ export class SpotifyEmbed {
 	// The embed ignores pause() while it's still starting a track, so a wanted pause is re-sent
 	// on every update that says it's playing, until resume()
 	private holdPaused = false;
+	// holdForTap(): waiting for the listener to press play on the embed; playing changes aren't reported
+	// until resume() or play(), so the first blip of music doesn't light the Tunes lamp
+	private tapArmed = false;
+	private quiet = false;
 	private endTimer: ReturnType<typeof setTimeout> | undefined;
 	private current: { uri: string; duration: number } | null = null;
 	playing = false;
@@ -87,9 +93,13 @@ export class SpotifyEmbed {
 					this.watchForEnd(e.data);
 					const playing = !e.data.isPaused;
 					if (playing && this.holdPaused) c.pause();
+					if (playing && this.tapArmed) {
+						this.tapArmed = false;
+						this.events.onTapped?.();
+					}
 					if (playing !== this.playing) {
 						this.playing = playing;
-						this.events.onPlayingChange?.(playing);
+						if (!this.quiet) this.events.onPlayingChange?.(playing);
 					}
 				});
 			});
@@ -124,14 +134,32 @@ export class SpotifyEmbed {
 		this.controller?.pause();
 	}
 
+	/**
+	 * Safari ignores a play() the page sends, but accepts the listener's own press of the embed's
+	 * play button, and after that lets the page pause and resume. So wait for that press (onTapped),
+	 * keep the music paused, and resume() once Pete has spoken.
+	 */
+	holdForTap() {
+		this.tapArmed = true;
+		this.holdPaused = true;
+		this.quiet = true;
+	}
+
 	resume() {
-		this.holdPaused = false;
+		this.releaseTapHold();
 		this.controller?.resume();
+		if (this.playing) this.events.onPlayingChange?.(true);
 	}
 
 	/** May be ignored without a recent tap (Safari); the embed's own play button still works. */
 	play() {
-		this.holdPaused = false;
+		this.releaseTapHold();
 		this.controller?.play();
+	}
+
+	private releaseTapHold() {
+		this.holdPaused = false;
+		this.tapArmed = false;
+		this.quiet = false;
 	}
 }

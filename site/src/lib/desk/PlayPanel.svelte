@@ -15,7 +15,7 @@
 	let text = $state('');
 	let link = $state('');
 	let message = $state('');
-	let stage = $state<'idle' | IntroStatus | 'intro' | 'music'>('idle');
+	let stage = $state<'idle' | IntroStatus | 'ready' | 'intro' | 'music'>('idle');
 	let embedEl: HTMLDivElement;
 	let embed: SpotifyEmbed;
 	let playButton: HTMLButtonElement;
@@ -26,6 +26,10 @@
 	let trackIds: TrackIds;
 	let introAudio: HTMLAudioElement;
 	let hasEmbed = $state(false);
+	// With a link, the Intro waits for the listener: they press play on the embed (unlocking it for iOS), then Hear Pete
+	let tapped = $state(false);
+	let readyIntro: Blob | null = null;
+	let loading: Promise<void> | undefined;
 	// The last Intro that played, which Send can turn into a Dedication
 	let sendable = $state<{ introId: string; text: string; link: string } | null>(null);
 	let sending = $state(false);
@@ -48,6 +52,7 @@
 				// Someone pressed play on the embed itself mid-Intro: Pete never talks over the music
 				if (playing && !introAudio.paused) introAudio.pause();
 			},
+			onTapped: () => (tapped = true),
 			onTrackStart: (uri, durationMs) => trackIds.trackStarted(uri, durationMs),
 			onEnded: () => trackIds.ended()
 		});
@@ -93,6 +98,7 @@
 		}
 		message = '';
 		sentUrl = '';
+		readyIntro = null;
 		trackIds.unlock();
 
 		if (line) {
@@ -111,22 +117,21 @@
 				}[result.reason];
 				return;
 			}
-			stage = 'intro';
 			sendable = { introId: result.id, text: line, link: link.trim() };
-			introAudio.src = URL.createObjectURL(result.audio);
-			const finished = new Promise((resolve) => (introAudio.onended = introAudio.onpause = resolve));
-			try {
-				pete.speaking = true;
-				await introAudio.play();
-				await finished;
-			} catch (e) {
-				console.warn('Intro playback failed', e);
-				message = 'Your browser blocked Pete; press Play again.';
-				stage = 'idle';
+			if (!parsed) {
+				await speak(result.audio);
 				return;
-			} finally {
-				pete.speaking = false;
 			}
+			// With music, wait for the listener: their press of the embed's play button is what lets
+			// Pete pause and resume it on iOS, and the Hear Pete tap that follows unlocks Pete's audio
+			readyIntro = result.audio;
+			tapped = false;
+			hasEmbed = true;
+			trackIds.start(parsed.uri);
+			embed.holdForTap();
+			loading = embed.load(parsed.uri);
+			stage = 'ready';
+			return;
 		}
 
 		if (parsed) {
@@ -137,6 +142,46 @@
 			embed.play();
 		}
 		stage = 'idle';
+	}
+
+	/** Play an Intro, then (when it was waiting on the listener) the music. */
+	async function speak(audio: Blob) {
+		trackIds.unlock();
+		stage = 'intro';
+		introAudio.src = URL.createObjectURL(audio);
+		const finished = new Promise((resolve) => (introAudio.onended = introAudio.onpause = resolve));
+		try {
+			pete.speaking = true;
+			await introAudio.play();
+			await finished;
+		} catch (e) {
+			console.warn('Intro playback failed', e);
+			message = 'Your browser blocked Pete; press Play again.';
+			stage = readyIntro ? 'ready' : 'idle';
+			return;
+		} finally {
+			pete.speaking = false;
+		}
+		if (!readyIntro) {
+			stage = 'idle';
+			return;
+		}
+		readyIntro = null;
+		stage = 'music';
+		await loading;
+		if (tapped) {
+			embed.resume();
+		} else {
+			embed.play();
+			// iOS ignores a play() the page sends; the listener has to press play on the embed
+			await new Promise((resolve) => setTimeout(resolve, 3000));
+			if (!embed.playing) message = 'Tap ▶ on the player below to start the music.';
+		}
+		stage = 'idle';
+	}
+
+	function hearPete() {
+		if (stage === 'ready' && readyIntro) speak(readyIntro);
 	}
 
 	async function send() {
@@ -214,6 +259,11 @@
 		<div class="last-spoken voice-status" style:display="block" aria-live="polite">
 			Warming up Pete… the first Intro after a quiet spell takes about a minute
 		</div>
+	{:else if stage === 'ready'}
+		<div class="last-spoken voice-status" style:display="block" aria-live="polite">
+			{tapped ? 'Music’s ready. Now press Hear Pete.' : 'Pete’s ready. First tap ▶ on the player below, then press Hear Pete.'}
+		</div>
+		<button class="speak-btn dedication-play" onclick={hearPete}>▶ Hear Pete</button>
 	{:else if message}
 		<div class="last-spoken voice-status" style:display="block" aria-live="polite">{message}</div>
 	{/if}

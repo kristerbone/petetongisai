@@ -22,6 +22,9 @@
 	let embed: SpotifyEmbed;
 	let trackIds: TrackIds;
 	let hasEmbed = $state(false);
+	// The listener pressed play on the embed itself, so the page may pause and resume it (iOS)
+	let tapped = $state(false);
+	let loading: Promise<void> | undefined;
 	let signedOff = false;
 	let showBox = $state(false);
 	let playlist = $state('');
@@ -34,11 +37,19 @@
 				pete.music = playing;
 				if (playing) message = '';
 			},
+			onTapped: () => (tapped = true),
 			onTrackStart: (uri, durationMs) => trackIds.trackStarted(uri, durationMs),
 			// With music, the Sign-off follows the final Track ID
 			onEnded: () => trackIds.ended().then(signOff)
 		});
 		trackIds = new TrackIds(embed);
+		if (!data.faded && data.spotifyUri) {
+			// Shown up front: the first press of its play button is what lets Pete pause and resume it later
+			hasEmbed = true;
+			trackIds.start(data.spotifyUri);
+			embed.holdForTap();
+			loading = embed.load(data.spotifyUri);
+		}
 	});
 
 	async function play() {
@@ -72,13 +83,15 @@
 		pete.speaking = false;
 		if (data.spotifyUri) {
 			stage = 'music';
-			hasEmbed = true;
-			trackIds.start(data.spotifyUri);
-			await embed.load(data.spotifyUri);
-			embed.play();
-			// iOS ignores a play() that doesn't come from a tap, and the Intro took longer than a tap lasts
-			await new Promise((resolve) => setTimeout(resolve, 3000));
-			if (!embed.playing) message = 'Tap ▶ on the player below to start the music.';
+			await loading;
+			if (tapped) {
+				embed.resume();
+			} else {
+				embed.play();
+				// iOS ignores a play() the page sends; the listener has to press play on the embed
+				await new Promise((resolve) => setTimeout(resolve, 3000));
+				if (!embed.playing) message = 'Tap ▶ on the player below to start the music.';
+			}
 		} else {
 			stage = 'done';
 			await signOff();
@@ -124,11 +137,14 @@
 		{:else}
 			<Lamps />
 			<div class="intro-badge">AI voice, not Pete Tong</div>
+			<div class="spotify-embed" class:visible={hasEmbed}><div bind:this={embedEl}></div></div>
+			{#if data.spotifyUri && stage === 'ready'}
+				<p class="tap-hint">{tapped ? 'Music’s ready. Now press Play your Dedication.' : 'First tap ▶ on the player, then press Play your Dedication.'}</p>
+			{/if}
 			<button class="speak-btn dedication-play" onclick={play} disabled={stage !== 'ready'}>
 				{stage === 'ready' ? '▶ Play your Dedication' : stage === 'intro' ? 'Pete’s on…' : '♫'}
 			</button>
 			{#if message}<div class="last-spoken voice-status" style:display="block">{message}</div>{/if}
-			<div class="spotify-embed" class:visible={hasEmbed}><div bind:this={embedEl}></div></div>
 			{#if showBox}
 				<form class="playlist-box" onsubmit={openInDesk} novalidate>
 					<div class="section-label">Got a playlist? Pete will tell you what's playing</div>

@@ -207,6 +207,7 @@ body {
 .text-count + .voice-input-row { margin-top: 4px; }
 
 .dedication { max-width: 560px; }
+.tap-hint { text-align: center; font-size: 12px; color: #aaa; margin: 10px 0 0; }
 .dedication-play { width: 100%; padding: 18px; font-size: 16px; margin-top: 8px; }
 .dedication-faded { text-align: center; color: #aaa; padding: 24px 0; }
 .dedication-faded a, .dedication-own a { color: #ff6b35; }
