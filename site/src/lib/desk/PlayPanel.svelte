@@ -104,7 +104,7 @@
 			if (!result.ok) {
 				stage = 'idle';
 				message = {
-					rejected: 'Pete’s not saying that one.',
+					rejected: 'Pete’s not saying that one. He sticks to dedications and shout-outs, so try saying who it’s for and what you’re celebrating.',
 					'rate-limited': `Pete needs a breather: try again in ${Math.ceil((result.retryAfterS ?? 3600) / 60)} minutes.`,
 					'off-air': 'Pete’s off air: this month’s hosting budget is used up. Back next month!',
 					error: result.message ?? 'Pete couldn’t say that one. Try again in a moment.'
