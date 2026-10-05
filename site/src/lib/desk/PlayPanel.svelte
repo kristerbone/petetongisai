@@ -44,7 +44,7 @@
 		introAudio = new Audio();
 		embed = new SpotifyEmbed(embedEl, {
 			onPlayingChange: (playing) => {
-				pete.music = playing; // Deck A follows the embed
+				pete.music = playing; // the Tunes lamp follows the embed
 				// Someone pressed play on the embed itself mid-Intro: Pete never talks over the music
 				if (playing && !introAudio.paused) introAudio.pause();
 			},
@@ -169,7 +169,7 @@
 </script>
 
 <div class="pt-voice-section" id="play">
-	<div class="section-label"><span class="led"></span>On Air — Pete Introduces Your Track</div>
+	<div class="section-label">Pete Introduces Your Track</div>
 	<div class="intro-badge">AI voice, not Pete Tong</div>
 
 	<div class="starters" role="group" aria-label="Occasion starters">
@@ -210,7 +210,7 @@
 		<div class="last-spoken voice-status" style:display="block" aria-live="polite">Cueing Pete up…</div>
 	{:else if stage === 'warming'}
 		<div class="last-spoken voice-status" style:display="block" aria-live="polite">
-			Warming up the decks… the first Intro after a quiet spell takes about a minute
+			Warming up Pete… the first Intro after a quiet spell takes about a minute
 		</div>
 	{:else if message}
 		<div class="last-spoken voice-status" style:display="block" aria-live="polite">{message}</div>

@@ -35,7 +35,7 @@ function loadApi(): Promise<IFrameAPI> {
 }
 
 export type EmbedEvents = {
-	/** The embed started or stopped playing (the decks reflect this). */
+	/** The embed started or stopped playing (the Tunes lamp reflects this). */
 	onPlayingChange?: (playing: boolean) => void;
 	/**
 	 * A track began playing (not a resume); Track IDs (ticket 13) build on this. Signed-out

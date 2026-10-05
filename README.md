@@ -8,9 +8,7 @@ Fan/hobby project, built for fun. Tips cover hosting costs only; any surplus goe
 
 ## Features
 
-- Dual spinning turntable decks with BPM nudge controls
-- Animated level meters and crossfader
-- Clickable EQ knobs
+- On Air and Tunes lamps: On Air lights red while Pete speaks, Tunes green while the Spotify music plays
 - 8 original Jingle buttons in Pete's (AI) voice, pre-rendered as static audio
 - Play panel: Pete reads your Intro (AI voice, checked and rate-limited), then your Spotify track or playlist plays
 

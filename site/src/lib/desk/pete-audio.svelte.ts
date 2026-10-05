@@ -1,8 +1,7 @@
 /**
  * Pete never talks over the music (ADR 0001). The Jingles and the Play panel share this:
  * while a Jingle plays the embed pauses, and Jingles wait while an Intro or a Track ID is on.
- * It's reactive state, so the desk's decks can follow it: Deck A spins while the music plays,
- * Deck B while Pete is talking.
+ * It's reactive state, so the On Air and Tunes lamps can follow it.
  */
 type Listener = (speaking: boolean) => void;
 const listeners = new Set<Listener>();

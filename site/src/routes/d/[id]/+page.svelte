@@ -4,6 +4,8 @@
 	import { nextSignOff } from '$lib/dedication/sign-off';
 	import { parseSpotifyLink } from '$lib/spotify/link';
 	import { SpotifyEmbed } from '$lib/spotify/embed';
+	import Lamps from '$lib/desk/Lamps.svelte';
+	import { pete } from '$lib/desk/pete-audio.svelte';
 	import { TrackIds } from '$lib/track-ids/player';
 	import SiteFooter from '$lib/site/SiteFooter.svelte';
 	import type { PageProps } from './$types';
@@ -29,6 +31,7 @@
 		introAudio = new Audio();
 		embed = new SpotifyEmbed(embedEl!, {
 			onPlayingChange: (playing) => {
+				pete.music = playing;
 				if (playing) message = '';
 			},
 			onTrackStart: (uri, durationMs) => trackIds.trackStarted(uri, durationMs),
@@ -45,6 +48,7 @@
 		introAudio.src = SILENCE;
 		introAudio.play().catch(() => {});
 		const url = `/d/${data.id}/intro.wav`;
+		pete.speaking = true;
 		try {
 			// Fetched whole and played on the element unlocked above: iOS won't stream from a server without Range
 			const res = await fetch(url);
@@ -60,10 +64,12 @@
 			} catch (e2) {
 				console.warn('Intro playback failed', e2);
 				message = `Couldn’t play the Intro (${e2 instanceof Error ? e2.message : e2}); tap Play again.`;
+				pete.speaking = false;
 				stage = 'ready';
 				return;
 			}
 		}
+		pete.speaking = false;
 		if (data.spotifyUri) {
 			stage = 'music';
 			hasEmbed = true;
@@ -116,7 +122,7 @@
 		{#if data.faded}
 			<p class="dedication-faded">This Dedication has faded out. <a href="/">Send your own.</a></p>
 		{:else}
-			<div class="section-label"><span class="led"></span>On Air</div>
+			<Lamps />
 			<div class="intro-badge">AI voice, not Pete Tong</div>
 			<button class="speak-btn dedication-play" onclick={play} disabled={stage !== 'ready'}>
 				{stage === 'ready' ? '▶ Play your Dedication' : stage === 'intro' ? 'Pete’s on…' : '♫'}

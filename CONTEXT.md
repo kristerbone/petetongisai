@@ -24,6 +24,14 @@ _Avoid_: Announcement, now-playing, shout
 A fixed line in Pete's voice at the end of every Dedication, inviting the listener to hand over a playlist for Track IDs.
 _Avoid_: Outro, call to action
 
+**On Air**:
+Lit while Pete is speaking: an Intro, a Track ID, a Sign-off or a Jingle. Never lit together with Tunes.
+_Avoid_: Speaking, voice, Deck B
+
+**Tunes**:
+Lit while the Spotify track or playlist is playing. Goes dark while Pete pauses it to speak.
+_Avoid_: Music, Deck A
+
 **Reference Clip**:
 A short recording of Pete's real speech that the voice model imitates.
 _Avoid_: Sample, training clip, voice prompt
