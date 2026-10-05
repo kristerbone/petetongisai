@@ -173,7 +173,6 @@
 	<div class="intro-badge">AI voice, not Pete Tong</div>
 
 	<div class="starters" role="group" aria-label="Occasion starters">
-		<span class="starters-label">Need an idea?</span>
 		{#each OCCASIONS as occasion (occasion.id)}
 			<button type="button" class="starter-chip" onclick={() => useStarter(occasion)}>{occasion.emoji} {occasion.label}</button>
 		{/each}
