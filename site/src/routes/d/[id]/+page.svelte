@@ -26,6 +26,11 @@
 	// The Sign-off and Track IDs wait until Pete has spoken; music that ends first (a 30 second preview) is only filler
 	let introHeard = false;
 	let signedOff = false;
+	// With music, the first press has to be on the player itself: that tap is what lets the page pause and resume it
+	let musicStarted = $state(false);
+	let gateTimedOut = $state(false);
+	const gated = $derived(!!data.spotifyUri && !musicStarted && !gateTimedOut);
+	let played = $state(false);
 	let showBox = $state(false);
 	let playlist = $state('');
 	let playlistInvalid = $state(false);
@@ -35,7 +40,10 @@
 		embed = new SpotifyEmbed(embedEl!, {
 			onPlayingChange: (playing) => {
 				pete.music = playing;
-				if (playing) message = '';
+				if (playing) {
+					message = '';
+					musicStarted = true;
+				}
 			},
 			onTrackStart: (uri, durationMs) => trackIds.trackStarted(uri, durationMs),
 			// With music, the Sign-off follows the final Track ID
@@ -48,52 +56,66 @@
 			trackIds.start(data.spotifyUri);
 			trackIds.silenced = true; // filler until Pete's Intro has played
 			loading = embed.load(data.spotifyUri);
+			// If the player never loads, don't leave the listener stuck
+			setTimeout(() => (gateTimedOut = true), 10_000);
 		}
 	});
 
-	async function play() {
-		if (data.faded || stage !== 'ready') return;
-		stage = 'intro';
-		trackIds.unlock();
-		// Filler the listener started: Pete never talks over music, so pause it and pick it up afterwards
-		const musicWasPlaying = embed.playing;
-		embed.pause({ hold: true });
-		introAudio.src = SILENCE;
-		introAudio.play().catch(() => {});
-		const url = `/d/${data.id}/intro.wav`;
-		pete.speaking = true;
-		try {
-			// Fetched whole and played on the element unlocked above: iOS won't stream from a server without Range
+	/**
+	 * Pete's Intro. With music it plays through Web Audio, not an audio element: a second media element
+	 * playing would interrupt the Spotify player on iOS, and then the page couldn't resume it.
+	 */
+	async function playIntro(url: string, withMusic: boolean) {
+		const viaElement = async () => {
+			// Fetched whole and played on the element unlocked in the tap: iOS won't stream from a server without Range
 			const res = await fetch(url);
 			if (!res.ok) throw new Error(`${url}: ${res.status}`);
 			introAudio.src = URL.createObjectURL(await res.blob());
 			const finished = new Promise((resolve) => (introAudio.onended = resolve));
 			await introAudio.play();
 			await finished;
+		};
+		const [first, second] = withMusic ? [() => trackIds.playFile(url), viaElement] : [viaElement, () => trackIds.playFile(url)];
+		try {
+			await first();
 		} catch (e) {
-			console.warn('Intro via an audio element failed, trying Web Audio', e);
-			try {
-				await trackIds.playFile(url);
-			} catch (e2) {
-				console.warn('Intro playback failed', e2);
-				message = `Couldn’t play the Intro (${e2 instanceof Error ? e2.message : e2}); tap Play again.`;
-				pete.speaking = false;
-				if (musicWasPlaying) embed.resume();
-				stage = 'ready';
-				return;
-			}
+			console.warn('Intro playback failed, trying the other way', e);
+			await second();
+		}
+	}
+
+	async function play() {
+		if (data.faded || stage !== 'ready' || gated) return;
+		stage = 'intro';
+		const withMusic = !!data.spotifyUri;
+		trackIds.unlock();
+		// Filler the listener started: Pete never talks over music, so pause it and pick it up afterwards
+		const musicWasPlaying = embed.playing;
+		if (withMusic) embed.pause({ hold: true });
+		else {
+			// A silent clip played in the tap unlocks the element for the Intro that follows
+			introAudio.src = SILENCE;
+			introAudio.play().catch(() => {});
+		}
+		pete.speaking = true;
+		try {
+			await playIntro(`/d/${data.id}/intro.wav`, withMusic);
+		} catch (e) {
+			console.warn('Intro playback failed', e);
+			message = `Couldn’t play the Intro (${e instanceof Error ? e.message : e}); tap Play again.`;
+			pete.speaking = false;
+			if (musicWasPlaying) embed.resume();
+			stage = 'ready';
+			return;
 		}
 		pete.speaking = false;
 		introHeard = true;
 		trackIds.silenced = false;
-		if (data.spotifyUri) {
+		if (withMusic) {
 			stage = 'music';
 			await loading;
-			if (musicWasPlaying) {
-				embed.resume();
-			} else {
-				embed.play();
-			}
+			if (musicWasPlaying) embed.resume();
+			else embed.play();
 			// iOS can ignore a play or resume the page sends; the listener then presses play on the embed
 			await new Promise((resolve) => setTimeout(resolve, 3000));
 			if (!embed.playing) message = 'Tap ▶ on the player below to start the music.';
@@ -101,6 +123,8 @@
 			stage = 'done';
 			await signOff();
 		}
+		played = true;
+		stage = 'ready';
 	}
 
 	/** Pete's Sign-off invites the listener to hand over a playlist; the box appears after it. */
@@ -143,11 +167,11 @@
 			<Lamps />
 			<div class="intro-badge">AI voice, not Pete Tong</div>
 			<div class="spotify-embed" class:visible={hasEmbed}><div bind:this={embedEl}></div></div>
-			{#if data.spotifyUri && stage === 'ready'}
-				<p class="tap-hint">Tap ▶ on the player for some music while you wait, then press Play your Dedication.</p>
+			{#if gated}
+				<p class="tap-hint">Tap ▶ on the player to start some music, then Pete will introduce it.</p>
 			{/if}
-			<button class="speak-btn dedication-play" onclick={play} disabled={stage !== 'ready'}>
-				{stage === 'ready' ? '▶ Play your Dedication' : stage === 'intro' ? 'Pete’s on…' : '♫'}
+			<button class="speak-btn dedication-play" onclick={play} disabled={stage !== 'ready' || gated}>
+				{gated ? '① Tap ▶ on the player first' : stage === 'ready' ? (played ? '↻ Play it again' : '▶ Play your Dedication') : stage === 'intro' ? 'Pete’s on…' : '♫'}
 			</button>
 			{#if message}<div class="last-spoken voice-status" style:display="block">{message}</div>{/if}
 			{#if showBox}

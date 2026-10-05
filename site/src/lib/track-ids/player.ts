@@ -73,7 +73,15 @@ export class TrackIds {
 	async playFile(url: string): Promise<void> {
 		const res = await fetch(url);
 		if (!res.ok) throw new Error(`${url}: ${res.status}`);
-		const buffer = await this.decode(await res.arrayBuffer());
+		await this.playData(await res.arrayBuffer());
+	}
+
+	async playBlob(blob: Blob): Promise<void> {
+		await this.playData(await blob.arrayBuffer());
+	}
+
+	private async playData(data: ArrayBuffer): Promise<void> {
+		const buffer = await this.decode(data);
 		const ctx = this.ctx!;
 		await ctx.resume();
 		const source = ctx.createBufferSource();
