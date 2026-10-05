@@ -26,6 +26,8 @@ const pick = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
  * Pieces are joined in Web Audio, so they play back to back without gaps or a fresh tap.
  */
 export class TrackIds {
+	/** Filler music before Pete's Intro: tracks are still followed, but none are announced yet. */
+	silenced = false;
 	private session = new TrackIdSession(false);
 	private lines = new Map<string, Promise<AudioBuffer | null>>();
 	private ctx: AudioContext | null = null;
@@ -166,6 +168,7 @@ export class TrackIds {
 	}
 
 	private announce(a: Announcement) {
+		if (this.silenced) return;
 		const generation = this.generation;
 		const skipped = this.nextStart; // the start after this one, not whichever is latest by then
 		this.queue = this.queue.then(async () => {

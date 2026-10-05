@@ -46,6 +46,7 @@
 			// Shown up front: a press of its play button gives filler music, and the page may pause and resume it (iOS)
 			hasEmbed = true;
 			trackIds.start(data.spotifyUri);
+			trackIds.silenced = true; // filler until Pete's Intro has played
 			loading = embed.load(data.spotifyUri);
 		}
 	});
@@ -84,6 +85,7 @@
 		}
 		pete.speaking = false;
 		introHeard = true;
+		trackIds.silenced = false;
 		if (data.spotifyUri) {
 			stage = 'music';
 			await loading;

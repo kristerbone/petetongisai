@@ -101,6 +101,8 @@
 		message = '';
 		sentUrl = '';
 		readyIntro = null;
+		fillerOnly = false;
+		trackIds.silenced = false;
 		trackIds.unlock();
 
 		if (line) {
@@ -111,12 +113,16 @@
 				// Up now, so the listener can press its play button while the clip renders
 				hasEmbed = true;
 				trackIds.start(parsed.uri);
+				fillerOnly = true;
+				trackIds.silenced = true;
 				loading = embed.load(parsed.uri);
 			}
 
 			const result = await renderIntro(line, (s) => (stage = s));
 			if (!result.ok) {
 				stage = 'idle';
+				fillerOnly = false;
+				trackIds.silenced = false;
 				message = {
 					rejected: 'Pete’s not saying that one. He sticks to dedications and shout-outs, so try saying who it’s for and what you’re celebrating.',
 					'rate-limited': `Pete needs a breather: try again in ${Math.ceil((result.retryAfterS ?? 3600) / 60)} minutes.`,
@@ -133,7 +139,6 @@
 			// With music, wait for the listener: the Hear Pete tap unlocks Pete's audio, and music they
 			// started on the embed is paused for Pete and resumed after (iOS lets a page do that, not start it)
 			readyIntro = result.audio;
-			fillerOnly = true;
 			stage = 'ready';
 			return;
 		}
@@ -177,6 +182,7 @@
 		}
 		readyIntro = null;
 		fillerOnly = false;
+		trackIds.silenced = false;
 		stage = 'music';
 		await loading;
 		if (musicWasPlaying) embed.resume();
