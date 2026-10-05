@@ -146,9 +146,18 @@ export class SpotifyEmbed {
 	}
 
 	resume() {
+		const afterTap = this.quiet;
 		this.releaseTapHold();
 		this.controller?.resume();
 		if (this.playing) this.events.onPlayingChange?.(true);
+		// A track paused while it was still starting can ignore resume(): ask again, then start it outright
+		if (afterTap) {
+			for (const ms of [1200, 2500]) {
+				setTimeout(() => {
+					if (!this.playing && !this.holdPaused) this.controller?.play();
+				}, ms);
+			}
+		}
 	}
 
 	/** May be ignored without a recent tap (Safari); the embed's own play button still works. */
