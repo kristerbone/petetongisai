@@ -32,10 +32,6 @@
 	let loading: Promise<void> | undefined;
 	// Music that ends before Pete has spoken (a 30 second preview) is only filler: no Track ID for it
 	let fillerOnly = false;
-	// The first press has to be on the player itself: that tap is what lets the page pause and resume it (iOS)
-	let musicStarted = $state(false);
-	let gateTimedOut = $state(false);
-	const hearGated = $derived(!musicStarted && !gateTimedOut);
 	// The last Intro that played, which Send can turn into a Dedication
 	let sendable = $state<{ introId: string; text: string; link: string } | null>(null);
 	let sending = $state(false);
@@ -55,10 +51,7 @@
 		embed = new SpotifyEmbed(embedEl, {
 			onPlayingChange: (playing) => {
 				pete.music = playing; // the Tunes lamp follows the embed
-				if (playing) {
-					message = '';
-					musicStarted = true;
-				}
+				if (playing) message = '';
 				// Someone pressed play on the embed itself mid-Intro: Pete never talks over the music
 				if (playing && !embed.held && !introAudio.paused) introAudio.pause();
 			},
@@ -120,8 +113,6 @@
 			}
 			embed.pause();
 			if (parsed) {
-				musicStarted = false;
-				gateTimedOut = false;
 				// Up now, so the listener can press its play button while the clip renders
 				hasEmbed = true;
 				trackIds.start(parsed.uri);
@@ -152,8 +143,6 @@
 			// started on the embed is paused for Pete and resumed after (iOS lets a page do that, not start it)
 			readyIntro = result.audio;
 			stage = 'ready';
-			// If the player never loads, don't leave the listener stuck
-			setTimeout(() => (gateTimedOut = true), 10_000);
 			return;
 		}
 
@@ -299,11 +288,9 @@
 		</div>
 	{:else if stage === 'ready'}
 		<div class="last-spoken voice-status" style:display="block" aria-live="polite">
-			{hearGated ? 'Pete’s ready. Tap ▶ on the player to start some music, then press Hear Pete.' : 'Pete’s ready. Press Hear Pete when you are: the music pauses while he talks, then carries on.'}
+			Pete’s ready. Press Hear Pete when you are: any music playing pauses while he talks, then carries on.
 		</div>
-		<button class="speak-btn dedication-play" onclick={hearPete} disabled={hearGated}>
-			{hearGated ? '① Tap ▶ on the player first' : '▶ Hear Pete'}
-		</button>
+		<button class="speak-btn dedication-play" onclick={hearPete}>▶ Hear Pete</button>
 	{:else if message}
 		<div class="last-spoken voice-status" style:display="block" aria-live="polite">{message}</div>
 	{/if}
