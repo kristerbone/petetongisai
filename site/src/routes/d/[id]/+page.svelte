@@ -10,9 +10,9 @@
 
 	let { data }: PageProps = $props();
 
-	// A silent clip played in the tap unlocks this element, the fallback if Web Audio can't play the Intro
+	// A silent clip played in the tap unlocks this element, where the Intro plays; Web Audio is the fallback
 	const SILENCE = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
-	let fallbackAudio: HTMLAudioElement;
+	let introAudio: HTMLAudioElement;
 
 	let stage = $state<'ready' | 'intro' | 'music' | 'done'>('ready');
 	let message = $state('');
@@ -26,7 +26,7 @@
 	let playlistInvalid = $state(false);
 
 	onMount(() => {
-		fallbackAudio = new Audio();
+		introAudio = new Audio();
 		embed = new SpotifyEmbed(embedEl!, {
 			onPlayingChange: (playing) => {
 				if (playing) message = '';
@@ -42,20 +42,21 @@
 		if (data.faded || stage !== 'ready') return;
 		stage = 'intro';
 		trackIds.unlock();
-		fallbackAudio.src = SILENCE;
-		fallbackAudio.play().catch(() => {});
+		introAudio.src = SILENCE;
+		introAudio.play().catch(() => {});
 		const url = `/d/${data.id}/intro.wav`;
 		try {
-			await trackIds.playFile(url);
+			// Fetched whole and played on the element unlocked above: iOS won't stream from a server without Range
+			const res = await fetch(url);
+			if (!res.ok) throw new Error(`${url}: ${res.status}`);
+			introAudio.src = URL.createObjectURL(await res.blob());
+			const finished = new Promise((resolve) => (introAudio.onended = resolve));
+			await introAudio.play();
+			await finished;
 		} catch (e) {
-			console.warn('Intro via Web Audio failed, trying an audio element', e);
+			console.warn('Intro via an audio element failed, trying Web Audio', e);
 			try {
-				const res = await fetch(url);
-				if (!res.ok) throw new Error(`${url}: ${res.status}`);
-				fallbackAudio.src = URL.createObjectURL(await res.blob());
-				const finished = new Promise((resolve) => (fallbackAudio.onended = resolve));
-				await fallbackAudio.play();
-				await finished;
+				await trackIds.playFile(url);
 			} catch (e2) {
 				console.warn('Intro playback failed', e2);
 				message = `Couldn’t play the Intro (${e2 instanceof Error ? e2.message : e2}); tap Play again.`;
