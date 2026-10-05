@@ -174,7 +174,10 @@
 
 	<div class="starters" role="group" aria-label="Occasion starters">
 		{#each OCCASIONS as occasion (occasion.id)}
-			<button type="button" class="starter-chip" onclick={() => useStarter(occasion)}>{occasion.emoji} {occasion.label}</button>
+			<button type="button" class="starter-chip" aria-label={occasion.label} onclick={() => useStarter(occasion)}>
+				<span class="starter-emoji" aria-hidden="true">{occasion.emoji}</span>
+				<span class="starter-text">{occasion.label}</span>
+			</button>
 		{/each}
 	</div>
 	<div class="voice-input-row">
