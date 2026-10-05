@@ -17,7 +17,7 @@ The spoken part of a Dedication, heard before the music starts.
 _Avoid_: Voiceover, message audio
 
 **Track ID**:
-Pete's spoken back-announcement naming the last two tracks that played, most recent first, in the pause before the next one starts.
+Pete's spoken back-announcement naming the last two tracks that played, most recent first, in the pause before the next one starts. Spotify only: a Mixcloud show is one long mix with no track list to name.
 _Avoid_: Announcement, now-playing, shout
 
 **Sign-off**:
@@ -29,7 +29,7 @@ Lit while Pete is speaking: an Intro, a Track ID, a Sign-off or a Jingle. Never 
 _Avoid_: Speaking, voice, Deck B
 
 **Tunes**:
-Lit while the Spotify track or playlist is playing. Goes dark while Pete pauses it to speak.
+Lit while the music is playing: a Spotify track or playlist, or a Mixcloud show. Goes dark while Pete pauses it to speak.
 _Avoid_: Music, Deck A
 
 **Reference Clip**:
