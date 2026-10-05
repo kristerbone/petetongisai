@@ -233,7 +233,9 @@
 		else embed.play();
 		// iOS can ignore a play or resume the page sends; the listener then presses play on the embed
 		await new Promise((resolve) => setTimeout(resolve, 3000));
-		if (!embed.playing) message = 'Tap ▶ on the player below to start the music.';
+		if (!embed.playing) {
+			message = parsed?.service === 'mixcloud' ? 'Click anywhere to start the music.' : 'Tap ▶ on the player below to start the music.';
+		}
 		stage = 'idle';
 	}
 
@@ -311,7 +313,7 @@
 	{/if}
 
 	{#if stage === 'checking'}
-		<div class="last-spoken voice-status" style:display="block" aria-live="polite">Cueing Pete up…{hasEmbed ? ' Tap ▶ on the player for some music while you wait.' : ''}</div>
+		<div class="last-spoken voice-status" style:display="block" aria-live="polite">Cueing Pete up…{hasEmbed ? ' Press ▶ on the player for some music while you wait.' : ''}</div>
 	{:else if stage === 'warming'}
 		<div class="last-spoken voice-status" style:display="block" aria-live="polite">
 			Warming up Pete… the first Intro after a quiet spell takes about a minute{hasEmbed ? '. Tap ▶ on the player for some music while you wait.' : ''}
