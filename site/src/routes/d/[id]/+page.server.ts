@@ -7,7 +7,7 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 	const dedication = await getDedication(params.id);
 	if (!dedication) return { faded: true as const };
 	await markOpened(dedication.id);
-	return { faded: false as const, id: dedication.id, spotifyUri: dedication.spotifyUri };
+	return { faded: false as const, id: dedication.id, music: dedication.music };
 };
 
 export const actions: Actions = {

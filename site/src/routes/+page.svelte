@@ -7,13 +7,13 @@
 
 <svelte:head>
 	<title>Pete Tong Is AI — Global Dance AI</title>
-	<meta name="description" content="A fan-made DJ desk with an AI Pete Tong: fire off jingles, have Pete introduce your Spotify track or playlist, and send a friend a Dedication." />
+	<meta name="description" content="A fan-made DJ desk with an AI Pete Tong: fire off jingles, have Pete introduce your Spotify track, playlist or Mixcloud show, and send a friend a Dedication." />
 	<meta property="og:title" content="Pete Tong Is AI — Global Dance AI" />
-	<meta property="og:description" content="A fan-made DJ desk with an AI Pete Tong: fire off jingles, have Pete introduce your Spotify track or playlist, and send a friend a Dedication." />
+	<meta property="og:description" content="A fan-made DJ desk with an AI Pete Tong: fire off jingles, have Pete introduce your Spotify track, playlist or Mixcloud show, and send a friend a Dedication." />
 	<meta property="og:type" content="website" />
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content="Pete Tong Is AI — Global Dance AI" />
-	<meta name="twitter:description" content="A fan-made DJ desk with an AI Pete Tong: fire off jingles, have Pete introduce your Spotify track or playlist, and send a friend a Dedication." />
+	<meta name="twitter:description" content="A fan-made DJ desk with an AI Pete Tong: fire off jingles, have Pete introduce your Spotify track, playlist or Mixcloud show, and send a friend a Dedication." />
 </svelte:head>
 
 <div class="desk">

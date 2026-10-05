@@ -10,7 +10,8 @@ const db = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 export type Dedication = {
 	id: string;
 	introId: string;
-	spotifyUri: string | null;
+	/** `spotify:track:…`, `spotify:playlist:…` or `mixcloud:/user/show/`; null when the Dedication has no music */
+	music: string | null;
 	createdAt: number;
 	lastOpenedAt: number | null;
 	/** DynamoDB TTL (epoch seconds), pushed back on every open */
@@ -32,7 +33,7 @@ const newId = () =>
  * Turn a held Intro into a Dedication. Each Intro becomes at most one Dedication: sending the
  * same Intro again returns the link already made.
  */
-export async function createDedication(introId: string, spotifyUri: string | null): Promise<string> {
+export async function createDedication(introId: string, music: string | null): Promise<string> {
 	const claim = `intro#${introId}`;
 	const id = newId();
 	try {
@@ -56,7 +57,7 @@ export async function createDedication(introId: string, spotifyUri: string | nul
 	await db.send(
 		new PutCommand({
 			TableName: Resource.Dedications.name,
-			Item: { id, introId, spotifyUri, createdAt: now, lastOpenedAt: null, fadesAt: fadesAt(now, fadeDays()) } satisfies Dedication
+			Item: { id, introId, music, createdAt: now, lastOpenedAt: null, fadesAt: fadesAt(now, fadeDays()) } satisfies Dedication
 		})
 	);
 	return id;
@@ -66,7 +67,8 @@ export async function getDedication(id: string): Promise<Dedication | null> {
 	if (!/^[A-Za-z0-9_-]{22}$/.test(id)) return null;
 	const { Item } = await db.send(new GetCommand({ TableName: Resource.Dedications.name, Key: { id } }));
 	if (!Item || !('createdAt' in Item) || hasFaded(Item, Date.now())) return null;
-	return Item as Dedication;
+	// Dedications made before Mixcloud kept their Spotify link in spotifyUri
+	return { ...Item, music: Item.music ?? Item.spotifyUri ?? null } as Dedication;
 }
 
 /** Opening a Dedication pushes its Fade back by the full period. */

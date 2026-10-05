@@ -37,7 +37,7 @@
 
 		<h2>What a Dedication stores</h2>
 		<p>
-			When you Send, the site stores the Intro's audio, the Spotify link (if you added one), and when the Dedication
+			When you Send, the site stores the Intro's audio, the Spotify or Mixcloud link (if you added one), and when the Dedication
 			was created and last opened. Not who sent it or who it's for, beyond whatever you said in the Intro. Anyone
 			with the link can hear it, and anyone who opens it can remove it at once, deleting the record and the audio.
 		</p>
@@ -53,6 +53,11 @@
 			set Spotify's cookies. To name tracks, your browser sends the Spotify ID of the track (or playlist) to the
 			site's server, which looks it up with Spotify, MusicBrainz and Deezer. Each track's line is stored and shared with
 			everyone who plays that track, with nothing about who played it.
+		</p>
+		<p>
+			A Mixcloud show plays in Mixcloud's embedded player instead, under
+			<a href="https://www.mixcloud.com/privacy/" rel="noopener">its own privacy policy</a>, and may set Mixcloud's
+			cookies. A show has no Track IDs, so nothing about it is sent to the site's server beyond the link you send.
 		</p>
 
 		<h2>In your browser</h2>

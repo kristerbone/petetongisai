@@ -59,7 +59,7 @@
 
 		<h2>Credits</h2>
 		<ul>
-			<li>Music plays through Spotify's embedded player.</li>
+			<li>Music plays through Spotify's or Mixcloud's embedded player.</li>
 			<li>
 				Track names for Track IDs come from <a href="https://musicbrainz.org" rel="noopener">MusicBrainz</a> and
 				<a href="https://www.deezer.com" rel="noopener">Deezer</a>.

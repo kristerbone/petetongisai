@@ -2,8 +2,8 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { nextSignOff } from '$lib/dedication/sign-off';
-	import { parseSpotifyLink } from '$lib/spotify/link';
-	import { SpotifyEmbed } from '$lib/spotify/embed';
+	import { parseMusicLink } from '$lib/music/link';
+	import { MusicPlayer } from '$lib/music/player';
 	import Lamps from '$lib/desk/Lamps.svelte';
 	import { pete, resetPete } from '$lib/desk/pete-audio.svelte';
 	import { TrackIds } from '$lib/track-ids/player';
@@ -19,7 +19,7 @@
 	let stage = $state<'ready' | 'intro' | 'music' | 'done'>('ready');
 	let message = $state('');
 	let embedEl = $state<HTMLDivElement>();
-	let embed: SpotifyEmbed;
+	let embed: MusicPlayer;
 	let trackIds: TrackIds;
 	let hasEmbed = $state(false);
 	let loading: Promise<void> | undefined;
@@ -33,7 +33,7 @@
 
 	onMount(() => {
 		introAudio = new Audio();
-		embed = new SpotifyEmbed(embedEl!, {
+		embed = new MusicPlayer(embedEl!, {
 			onPlayingChange: (playing) => {
 				pete.music = playing;
 				if (playing) message = '';
@@ -43,12 +43,15 @@
 			onEnded: () => (introHeard ? trackIds.ended().then(signOff) : undefined)
 		});
 		trackIds = new TrackIds(embed);
-		if (!data.faded && data.spotifyUri) {
+		if (!data.faded && data.music) {
 			// Shown up front: a press of its play button gives filler music, and the page may pause and resume it (iOS)
 			hasEmbed = true;
-			trackIds.start(data.spotifyUri);
-			trackIds.silenced = true; // filler until Pete's Intro has played
-			loading = embed.load(data.spotifyUri);
+			// Track IDs name Spotify tracks; a Mixcloud show is one long mix, so it has none
+			if (data.music.startsWith('spotify:')) {
+				trackIds.start(data.music);
+				trackIds.silenced = true; // filler until Pete's Intro has played
+			}
+			loading = embed.load(data.music);
 		}
 		// Leaving for the desk removes the player without a pause event, so the Tunes lamp would stay lit
 		return resetPete;
@@ -80,7 +83,7 @@
 	async function play() {
 		if (data.faded || stage !== 'ready') return;
 		stage = 'intro';
-		const withMusic = !!data.spotifyUri;
+		const withMusic = !!data.music;
 		trackIds.unlock();
 		// Filler the listener started: Pete never talks over music, so pause it and pick it up afterwards
 		const musicWasPlaying = embed.playing;
@@ -110,6 +113,8 @@
 		trackIds.silenced = false;
 		if (withMusic) {
 			stage = 'music';
+			// A show runs for hours, so its Sign-off (and the box that follows it) would hardly ever come: offer the box now
+			if (data.music!.startsWith('mixcloud:')) showBox = true;
 			await loading;
 			embed.resume();
 			// iOS can ignore a play or resume the page sends; the listener then presses play on the embed
@@ -134,7 +139,7 @@
 	/** The playlist box opens the desk with the link filled in, ready to Play or Send. */
 	function openInDesk(e: SubmitEvent) {
 		e.preventDefault();
-		const link = parseSpotifyLink(playlist);
+		const link = parseMusicLink(playlist);
 		playlistInvalid = !link;
 		if (link) goto(`/?link=${encodeURIComponent(playlist.trim())}#play`, { keepFocus: true });
 	}
@@ -175,13 +180,13 @@
 							type="url"
 							class="voice-input"
 							class:invalid={playlistInvalid}
-							placeholder="Spotify playlist or track link"
+							placeholder="Spotify or Mixcloud link"
 							bind:value={playlist}
 						/>
 						<button class="speak-btn">▶ Go</button>
 					</div>
 					{#if playlistInvalid}
-						<div class="last-spoken voice-status" style:display="block">That’s not a Spotify playlist or track link.</div>
+						<div class="last-spoken voice-status" style:display="block">That’s not a Spotify track, playlist or Mixcloud show link.</div>
 					{/if}
 				</form>
 			{/if}

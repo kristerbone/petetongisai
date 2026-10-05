@@ -1,4 +1,4 @@
-import type { SpotifyEmbed } from '$lib/spotify/embed';
+import type { MusicEmbed } from '$lib/music/types';
 import { pete } from '$lib/desk/pete-audio.svelte';
 import { PIECES, type Form } from './lines';
 import { matchTrack, type ListedTrack } from './match';
@@ -43,7 +43,7 @@ export class TrackIds {
 	private nextStart!: Promise<void>;
 	private onNextStart = () => {};
 
-	constructor(private embed: SpotifyEmbed) {
+	constructor(private embed: MusicEmbed) {
 		this.armNextStart();
 	}
 

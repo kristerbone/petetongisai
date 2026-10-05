@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import { page } from '$app/state';
-	import { parseSpotifyLink } from '$lib/spotify/link';
-	import { SpotifyEmbed } from '$lib/spotify/embed';
+	import { parseMusicLink } from '$lib/music/link';
+	import { MusicPlayer } from '$lib/music/player';
 	import { TrackIds } from '$lib/track-ids/player';
 	import { renderIntro, type IntroStatus } from './intro';
 	import { canReplaceSilently, firstSlot, hasSlot, OCCASIONS } from './starters';
@@ -17,7 +17,7 @@
 	let message = $state('');
 	let stage = $state<'idle' | IntroStatus | 'ready' | 'intro' | 'music'>('idle');
 	let embedEl: HTMLDivElement;
-	let embed: SpotifyEmbed;
+	let embed: MusicPlayer;
 	let playButton: HTMLButtonElement;
 	let textBox: HTMLTextAreaElement;
 	// Occasion starters (ticket 16): the last one put in the box, and how far through each chip's lines
@@ -42,7 +42,7 @@
 	let copied = $state(false);
 	let canShare = $state(false);
 
-	const parsed = $derived(link.trim() ? parseSpotifyLink(link) : null);
+	const parsed = $derived(link.trim() ? parseMusicLink(link) : null);
 	const linkInvalid = $derived(link.trim() !== '' && !parsed);
 	const busy = $derived(stage === 'checking' || stage === 'warming');
 	// Editing the text or link after Play means Send would no longer match what was heard
@@ -58,7 +58,7 @@
 	onMount(() => {
 		canShare = 'share' in navigator;
 		introAudio = new Audio();
-		embed = new SpotifyEmbed(embedEl, {
+		embed = new MusicPlayer(embedEl, {
 			onPlayingChange: (playing) => {
 				pete.music = playing; // the Tunes lamp follows the embed
 				if (playing) message = '';
@@ -86,6 +86,11 @@
 			resetPete();
 		};
 	});
+
+	/** Track IDs name Spotify tracks; a Mixcloud show is one long mix, so it has none. */
+	function startTrackIds(uri: string) {
+		if (uri.startsWith('spotify:')) trackIds.start(uri);
+	}
 
 	/** Fill the box with the occasion's next starter and select its first slot, so typing replaces it. */
 	async function useStarter(occasion: (typeof OCCASIONS)[number]) {
@@ -129,7 +134,7 @@
 			if (parsed) {
 				// Started inside this tap, as filler while the clip renders; Hear Pete pauses it for Pete
 				hasEmbed = true;
-				trackIds.start(parsed.uri);
+				startTrackIds(parsed.uri);
 				fillerOnly = true;
 				trackIds.silenced = true;
 				if (preloadedUri !== parsed.uri) {
@@ -169,7 +174,7 @@
 		if (parsed) {
 			stage = 'music';
 			hasEmbed = true;
-			trackIds.start(parsed.uri);
+			startTrackIds(parsed.uri);
 			if (preloadedUri !== parsed.uri) {
 				preloadedUri = parsed.uri;
 				loading = embed.load(parsed.uri);
@@ -243,7 +248,7 @@
 		const res = await fetch('/api/dedications', {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({ introId: sendable.introId, spotifyUri: parsed?.uri ?? null })
+			body: JSON.stringify({ introId: sendable.introId, music: parsed?.uri ?? null })
 		});
 		sending = false;
 		if (!res.ok) {
@@ -293,7 +298,7 @@
 			type="url"
 			class="voice-input"
 			class:invalid={linkInvalid}
-			placeholder="Spotify track or playlist link (optional)"
+			placeholder="Spotify or Mixcloud link (optional)"
 			bind:value={link}
 			onkeydown={(e) => e.key === 'Enter' && play()}
 		/>
@@ -302,7 +307,7 @@
 		</button>
 	</div>
 	{#if linkInvalid}
-		<div class="last-spoken voice-status" style:display="block">That’s not a Spotify track or playlist link.</div>
+		<div class="last-spoken voice-status" style:display="block">That’s not a Spotify track, playlist or Mixcloud show link.</div>
 	{/if}
 
 	{#if stage === 'checking'}

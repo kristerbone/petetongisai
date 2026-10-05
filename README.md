@@ -8,13 +8,14 @@ Fan/hobby project, built for fun. Tips cover hosting costs only; any surplus goe
 
 ## Features
 
-- On Air and Tunes lamps: On Air lights red while Pete speaks, Tunes green while the Spotify music plays
+- On Air and Tunes lamps: On Air lights red while Pete speaks, Tunes green while the music plays
 - 8 original Jingle buttons in Pete's (AI) voice, pre-rendered as static audio
-- Play panel: Pete reads your Intro (AI voice, checked and rate-limited), then your Spotify track or playlist plays
+- Play panel: Pete reads your Intro (AI voice, checked and rate-limited), then your Spotify track or playlist, or Mixcloud show, plays
 
 ## Roadmap
 
 - [x] Self-hosted open voice model — Pete Tong voice clone, chosen by listening test (see `docs/adr/0002-self-hosted-open-voice-model.md`)
+- [x] Mixcloud shows via the widget API, no Track IDs (see `docs/adr/0005-mixcloud-yes-soundcloud-no.md`)
 - [x] Spotify embeds via the iFrame API — real track playback (see `docs/adr/0001-spotify-embeds-not-playback-sdk.md`)
 - [ ] Track IDs — Pete back-announces every two tracks, in lines written from his real shows
 - [x] Migrate to SvelteKit on AWS (via SST)

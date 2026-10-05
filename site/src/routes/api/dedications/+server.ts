@@ -1,7 +1,7 @@
 import { error, json } from '@sveltejs/kit';
 import { createDedication, DedicationRemoved } from '$lib/server/dedications';
 import { isIntroHeld } from '$lib/server/intros';
-import { parseSpotifyLink } from '$lib/spotify/link';
+import { parseMusicLink } from '$lib/music/link';
 import type { RequestHandler } from './$types';
 
 /**
@@ -9,10 +9,10 @@ import type { RequestHandler } from './$types';
  * (no text) never stores anything, and nothing is rendered again.
  */
 export const POST: RequestHandler = async ({ request, url }) => {
-	const { introId, spotifyUri } = await request.json().catch(() => ({}));
+	const { introId, music } = await request.json().catch(() => ({}));
 	if (typeof introId !== 'string' || !/^fc-[A-Za-z0-9]+$/.test(introId)) error(400, 'Send needs an Intro');
-	const link = spotifyUri ? parseSpotifyLink(String(spotifyUri)) : null;
-	if (spotifyUri && !link) error(400, 'That’s not a Spotify track or playlist link');
+	const link = music ? parseMusicLink(String(music)) : null;
+	if (music && !link) error(400, 'That’s not a Spotify track, playlist or Mixcloud show link');
 	if (!(await isIntroHeld(introId))) error(410, 'That Intro has expired; press Play again to make a new one');
 
 	let id: string;
