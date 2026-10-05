@@ -79,40 +79,6 @@ describe('MixcloudEmbed', () => {
 		}
 	});
 
-	it('if the browser refuses a play, the next click anywhere asks again', async () => {
-		vi.useFakeTimers();
-		const clicks: (() => void)[] = [];
-		vi.stubGlobal('document', { addEventListener: (_: string, listener: () => void) => clicks.push(listener) });
-		try {
-			const { embed, widget } = await loaded();
-			embed.play(); // blocked: no play event comes back
-			vi.advanceTimersByTime(1600);
-			expect(clicks).toHaveLength(1);
-			clicks[0](); // the click
-			expect(widget.play).toHaveBeenCalledTimes(2);
-		} finally {
-			vi.unstubAllGlobals();
-			vi.useRealTimers();
-		}
-	});
-
-	it('does not wait for a click when the music is playing or held for Pete', async () => {
-		vi.useFakeTimers();
-		const clicks: (() => void)[] = [];
-		vi.stubGlobal('document', { addEventListener: (_: string, listener: () => void) => clicks.push(listener) });
-		try {
-			const { embed, fire } = await loaded();
-			embed.play();
-			fire('play'); // it started
-			embed.unlock(); // held paused for Pete
-			vi.advanceTimersByTime(3000);
-			expect(clicks).toHaveLength(0);
-		} finally {
-			vi.unstubAllGlobals();
-			vi.useRealTimers();
-		}
-	});
-
 	it('ignores pause() when nothing is playing, and switches show without reloading the frame', async () => {
 		const { embed, widget } = await loaded();
 		embed.pause({ hold: true });

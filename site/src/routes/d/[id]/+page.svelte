@@ -120,7 +120,7 @@
 			// iOS can ignore a play or resume the page sends; the listener then presses play on the embed
 			await new Promise((resolve) => setTimeout(resolve, 3000));
 			if (!embed.playing) {
-				message = data.music!.startsWith('mixcloud:') ? 'Click anywhere to start the music.' : 'Tap ▶ on the player below to start the music.';
+				message = data.music!.startsWith('mixcloud:') ? 'Press ▶ on the Mixcloud player to start the music.' : 'Tap ▶ on the player below to start the music.';
 			}
 		} else {
 			stage = 'done';

@@ -2,6 +2,8 @@
  * Mixcloud's widget (ADR 0005), driven like the Spotify embed: the listener's tap can start it, and
  * the page may pause it for Pete and resume it afterwards (tested on iOS Safari). A show is one long
  * mix, so there are no track starts to report and so no Track IDs (ticket 13 is Spotify-only).
+ * Desktop browsers refuse a play() the page sends to the iframe (Mixcloud's docs say it isn't guaranteed):
+ * there the listener has to press the player's own ▶, and the pages say so after Pete.
  * https://www.mixcloud.com/developers/widget/
  */
 import type { EmbedEvents } from '$lib/spotify/embed';
@@ -25,7 +27,6 @@ export class MixcloudEmbed implements MusicEmbed {
 	private widget: MixcloudWidget | null = null;
 	private holdPaused = false;
 	private key: string | null = null;
-	private armed = false;
 	playing = false;
 
 	constructor(
@@ -81,34 +82,11 @@ export class MixcloudEmbed implements MusicEmbed {
 				if (!this.playing && !this.holdPaused) this.widget?.play();
 			}, ms);
 		}
-		this.startOnNextClickIfBlocked(2600);
 	}
 
 	play() {
 		this.holdPaused = false;
 		this.widget?.play();
-		this.startOnNextClickIfBlocked(1500);
-	}
-
-	/**
-	 * Desktop browsers may refuse a play() the page sends to Mixcloud's iframe (Mixcloud's docs say
-	 * play() is not guaranteed). If it's still silent after `afterMs`, the next click anywhere on the
-	 * page asks again, now with a fresh click behind it.
-	 */
-	private startOnNextClickIfBlocked(afterMs: number) {
-		if (typeof document === 'undefined') return;
-		setTimeout(() => {
-			if (this.playing || this.holdPaused || this.armed) return;
-			this.armed = true;
-			document.addEventListener(
-				'click',
-				() => {
-					this.armed = false;
-					if (!this.holdPaused) this.widget?.play();
-				},
-				{ once: true, capture: true }
-			);
-		}, afterMs);
 	}
 
 	/** Call inside the listener's tap: start the music and keep it paused until resume(). */
