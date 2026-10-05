@@ -6,7 +6,7 @@
 	import { TrackIds } from '$lib/track-ids/player';
 	import { renderIntro, type IntroStatus } from './intro';
 	import { canReplaceSilently, firstSlot, hasSlot, OCCASIONS } from './starters';
-	import { onJingle, pete } from './pete-audio.svelte';
+	import { onJingle, pete, resetPete } from './pete-audio.svelte';
 
 	const MAX_CHARS = 500;
 	// A silent WAV, played inside the tap so the Intro may play later without one (Safari)
@@ -72,7 +72,7 @@
 		embedReady = true;
 		// A Jingle pauses the music and picks it back up afterwards
 		let resumeAfterJingle = false;
-		return onJingle((speaking) => {
+		const offJingle = onJingle((speaking) => {
 			if (speaking && embed.playing) {
 				resumeAfterJingle = true;
 				embed.pause({ hold: true });
@@ -81,6 +81,10 @@
 				embed.resume();
 			}
 		});
+		return () => {
+			offJingle();
+			resetPete();
+		};
 	});
 
 	/** Fill the box with the occasion's next starter and select its first slot, so typing replaces it. */

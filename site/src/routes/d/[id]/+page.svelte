@@ -5,7 +5,7 @@
 	import { parseSpotifyLink } from '$lib/spotify/link';
 	import { SpotifyEmbed } from '$lib/spotify/embed';
 	import Lamps from '$lib/desk/Lamps.svelte';
-	import { pete } from '$lib/desk/pete-audio.svelte';
+	import { pete, resetPete } from '$lib/desk/pete-audio.svelte';
 	import { TrackIds } from '$lib/track-ids/player';
 	import SiteFooter from '$lib/site/SiteFooter.svelte';
 	import type { PageProps } from './$types';
@@ -50,6 +50,8 @@
 			trackIds.silenced = true; // filler until Pete's Intro has played
 			loading = embed.load(data.spotifyUri);
 		}
+		// Leaving for the desk removes the player without a pause event, so the Tunes lamp would stay lit
+		return resetPete;
 	});
 
 	/**

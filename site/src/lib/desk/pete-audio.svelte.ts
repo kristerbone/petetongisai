@@ -15,6 +15,13 @@ export const pete = $state({
 	music: false
 });
 
+/** Leaving a page tears down its player and audio without a word, so its lamps must go dark with it. */
+export function resetPete() {
+	pete.speaking = false;
+	pete.jingle = false;
+	pete.music = false;
+}
+
 export function onJingle(listener: Listener) {
 	listeners.add(listener);
 	return () => listeners.delete(listener);
