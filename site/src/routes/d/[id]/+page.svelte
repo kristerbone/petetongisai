@@ -82,8 +82,11 @@
 		trackIds.unlock();
 		// Filler the listener started: Pete never talks over music, so pause it and pick it up afterwards
 		const musicWasPlaying = embed.playing;
-		if (withMusic) embed.pause({ hold: true });
-		else {
+		if (withMusic) {
+			// Start the music inside this tap and keep it paused: Safari then lets the page resume it after Pete
+			if (embed.playing) embed.pause({ hold: true });
+			else embed.unlock();
+		} else {
 			// A silent clip played in the tap unlocks the element for the Intro that follows
 			introAudio.src = SILENCE;
 			introAudio.play().catch(() => {});
@@ -96,6 +99,7 @@
 			message = `Couldn’t play the Intro (${e instanceof Error ? e.message : e}); tap Play again.`;
 			pete.speaking = false;
 			if (musicWasPlaying) embed.resume();
+			else embed.release();
 			stage = 'ready';
 			return;
 		}
@@ -105,8 +109,7 @@
 		if (withMusic) {
 			stage = 'music';
 			await loading;
-			if (musicWasPlaying) embed.resume();
-			else embed.play();
+			embed.resume();
 			// iOS can ignore a play or resume the page sends; the listener then presses play on the embed
 			await new Promise((resolve) => setTimeout(resolve, 3000));
 			if (!embed.playing) message = 'Tap ▶ on the player below to start the music.';

@@ -26,6 +26,9 @@
 	let trackIds: TrackIds;
 	let introAudio: HTMLAudioElement;
 	let hasEmbed = $state(false);
+	let embedReady = $state(false);
+	// The player loads as soon as a valid link is in the box, so Play's tap can start it (Safari only accepts that during a tap)
+	let preloadedUri: string | null = null;
 	// With a link, the player shows while Pete's clip renders so the listener can start some music, and the
 	// Intro then waits for them to press Hear Pete, which pauses the music, plays Pete and picks the music up again
 	let readyIntro: Blob | null = null;
@@ -45,6 +48,13 @@
 	// Editing the text or link after Play means Send would no longer match what was heard
 	const canSend = $derived(!!sendable && sendable.text === text.trim() && sendable.link === link.trim());
 
+	$effect(() => {
+		if (!embedReady || !parsed || parsed.uri === preloadedUri) return;
+		preloadedUri = parsed.uri;
+		hasEmbed = true;
+		loading = embed.load(parsed.uri);
+	});
+
 	onMount(() => {
 		canShare = 'share' in navigator;
 		introAudio = new Audio();
@@ -59,6 +69,7 @@
 			onEnded: () => (fillerOnly ? undefined : trackIds.ended())
 		});
 		trackIds = new TrackIds(embed);
+		embedReady = true;
 		// A Jingle pauses the music and picks it back up afterwards
 		let resumeAfterJingle = false;
 		return onJingle((speaking) => {
@@ -111,14 +122,19 @@
 				introAudio.src = SILENCE;
 				introAudio.play().catch(() => {});
 			}
-			embed.pause();
 			if (parsed) {
-				// Up now, so the listener can press its play button while the clip renders
+				// Started inside this tap, as filler while the clip renders; Hear Pete pauses it for Pete
 				hasEmbed = true;
 				trackIds.start(parsed.uri);
 				fillerOnly = true;
 				trackIds.silenced = true;
-				loading = embed.load(parsed.uri);
+				if (preloadedUri !== parsed.uri) {
+					preloadedUri = parsed.uri;
+					loading = embed.load(parsed.uri);
+				}
+				embed.play();
+			} else {
+				embed.pause();
 			}
 
 			const result = await renderIntro(line, (s) => (stage = s));
@@ -150,7 +166,12 @@
 			stage = 'music';
 			hasEmbed = true;
 			trackIds.start(parsed.uri);
-			await embed.load(parsed.uri);
+			if (preloadedUri !== parsed.uri) {
+				preloadedUri = parsed.uri;
+				loading = embed.load(parsed.uri);
+			}
+			embed.play();
+			await loading;
 			embed.play();
 		}
 		stage = 'idle';

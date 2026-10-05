@@ -143,6 +143,20 @@ export class SpotifyEmbed {
 		}
 	}
 
+	/**
+	 * Call inside the listener's tap: start the music, and keep it paused until resume(). Safari accepts
+	 * a play() sent during the tap, and after that lets the page pause and resume the music.
+	 */
+	unlock() {
+		this.holdPaused = true;
+		this.controller?.play();
+	}
+
+	/** Let go of a hold without starting anything. */
+	release() {
+		this.holdPaused = false;
+	}
+
 	/** May be ignored without a recent tap (Safari); the embed's own play button still works. */
 	play() {
 		this.holdPaused = false;
