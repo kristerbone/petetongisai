@@ -5,7 +5,8 @@ The petetongisai.com desk: SvelteKit 2 (Svelte 5), deployed to AWS (eu-west-2) w
 ```bash
 nvm use            # Node 24, see .nvmrc
 npm install
-npm run dev        # http://localhost:5173
+npm run dev        # http://localhost:5173 (no AWS: routes that use SST resources return 500)
+npm run dev:sst    # same, with the staging resources linked (needs an `aws login` session)
 npm run check      # type-check
 ```
 

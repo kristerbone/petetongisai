@@ -2,6 +2,7 @@ import type { MusicEmbed } from '$lib/music/types';
 import { pete } from '$lib/desk/pete-audio.svelte';
 import { PIECES, type Form } from './lines';
 import { matchTrack, type ListedTrack } from './match';
+import { dlog, watchPageSignals } from '$lib/debug-log';
 import { TrackIdSession, type Announcement, type Piece } from './session';
 
 const POLL_MS = 2000;
@@ -44,6 +45,7 @@ export class TrackIds {
 	private onNextStart = () => {};
 
 	constructor(private embed: MusicEmbed) {
+		watchPageSignals();
 		this.armNextStart();
 	}
 
@@ -61,6 +63,7 @@ export class TrackIds {
 			// Not supported: older iOS and other browsers
 		}
 		this.ctx ??= newAudioContext();
+		this.ctx.addEventListener('statechange', () => dlog('page', `AudioContext ${this.ctx!.state}`));
 		this.ctx.resume().catch(() => {});
 		// iOS Safari wants a sound started inside the tap before it lets the context speak later
 		const silent = this.ctx.createBufferSource();
@@ -101,7 +104,10 @@ export class TrackIds {
 		const playlistId = uri.match(/^spotify:playlist:([A-Za-z0-9]{22})$/)?.[1];
 		this.playlist = playlistId
 			? fetch(`/api/playlist/${playlistId}`)
-					.then((r) => (r.ok ? r.json() : null))
+					.then((r) => {
+						dlog('trackids', `playlist list ${playlistId} -> ${r.status}`);
+						return r.ok ? r.json() : null;
+					})
 					.catch(() => null)
 			: Promise.resolve(null);
 	}
@@ -113,6 +119,7 @@ export class TrackIds {
 			const trackId = await this.identify(uri, durationMs);
 			if (generation !== this.generation) return;
 			const step = this.session.trackStarted(trackId);
+			dlog('trackids', `trackStarted ${trackId}`, step ? { prepare: step.prepare, announce: step.announce } : 'ignored (same track)');
 			if (!step) return;
 			this.armNextStart();
 			this.line(step.prepare);
@@ -136,6 +143,7 @@ export class TrackIds {
 	private async identify(uri: string, durationMs: number): Promise<string> {
 		const direct = uri.match(/^spotify:track:([A-Za-z0-9]{22})$/)?.[1];
 		const list = await this.playlist;
+		dlog('trackids', `identify ${uri} ${durationMs}ms: ${direct ? 'embed named the track' : 'playlist URI only, matching by duration'}; list=${list ? list.length + ' tracks' : 'none'}`);
 		if (direct) {
 			// Signed out: the embed names the track; find it in the playlist anyway, for rendering ahead
 			const i = list?.findIndex((t) => t.trackId === direct) ?? -1;
@@ -146,7 +154,15 @@ export class TrackIds {
 			return direct;
 		}
 		const i = list ? matchTrack(list, durationMs, this.lastMatch, this.matched) : null;
-		if (i === null) return `unknown-${++this.unmatched}`;
+		if (i === null) {
+			const nearest = (list ?? [])
+				.map((t, idx) => ({ idx, trackId: t.trackId, durationMs: t.durationMs, diffMs: t.durationMs - durationMs, alreadyMatched: this.matched.has(idx) }))
+				.sort((a, b) => Math.abs(a.diffMs) - Math.abs(b.diffMs))
+				.slice(0, 4);
+			dlog('trackids', `NO MATCH for ${durationMs}ms (${list ? list.length + ' listed tracks' : 'playlist list unavailable'}, lastMatch=${this.lastMatch}, matched=[${[...this.matched]}])`, nearest);
+			return `unknown-${++this.unmatched}`;
+		}
+		dlog('trackids', `matched list[${i}] ${list![i].trackId} (listed ${list![i].durationMs}ms vs playing ${durationMs}ms, diff ${list![i].durationMs - durationMs}ms)`);
 		this.lastMatch = i;
 		this.matched.add(i);
 		return list![i].trackId;
@@ -176,23 +192,35 @@ export class TrackIds {
 	}
 
 	private announce(a: Announcement) {
-		if (this.silenced) return;
+		if (this.silenced) {
+			dlog('trackids', 'announce skipped: silenced (filler before Intro)');
+			return;
+		}
+		dlog('trackids', 'announce queued', a);
 		const generation = this.generation;
 		const skipped = this.nextStart; // the start after this one, not whichever is latest by then
 		this.queue = this.queue.then(async () => {
 			if (generation !== this.generation) return;
 			// Mid-session the music plays on while Pete's lines finish: late, but named
-			if (!a.atEnd) await this.ready(a, skipped);
+			if (!a.atEnd) {
+				dlog('trackids', 'waiting for lines (ready)');
+				await this.ready(a, skipped);
+				dlog('trackids', 'ready() settled');
+			}
 			if (generation !== this.generation) return;
 			const pause = !a.atEnd;
 			if (pause) this.embed.pause({ hold: true });
 			pete.speaking = true;
 			try {
-				await this.play(await this.assemble(a));
+				const parts = await this.assemble(a);
+				dlog('trackids', `PLAY Track ID: ${parts.length} pieces, ${parts.reduce((n, b) => n + b.duration, 0).toFixed(1)}s`);
+				await this.play(parts);
+				dlog('trackids', 'Track ID finished');
 			} catch (e) {
 				console.warn('Track ID failed', e);
 			} finally {
 				pete.speaking = false;
+				dlog('trackids', 'resuming music', { pause });
 				if (pause) this.embed.resume();
 			}
 		});
@@ -220,6 +248,7 @@ export class TrackIds {
 		const timeout = new Promise<null>((r) => setTimeout(() => r(null), wait));
 		const line = await Promise.race([this.line(p), timeout]);
 		if (line) return line;
+		dlog('trackids', `using GENERIC line for ${p.trackId}/${p.form} (wait ${wait}ms)`);
 		return this.piece(pick(p.form === 'lead' ? PIECES.genericLeads : PIECES.genericFollows).id);
 	}
 
@@ -240,8 +269,10 @@ export class TrackIds {
 
 	private async poll(trackId: string, form: Form): Promise<AudioBuffer | null> {
 		const began = Date.now();
+		dlog('trackids', `poll start ${trackId}/${form}`);
 		while (Date.now() - began < GIVE_UP_MS) {
 			const res = await fetch(`/api/track-id/${trackId}/${form}`);
+			dlog('trackids', `poll ${trackId}/${form} -> ${res.status}${res.headers.get('x-generic-reason') ? ' ' + res.headers.get('x-generic-reason') : ''}`);
 			if (res.status === 200) return this.decode(await res.arrayBuffer());
 			if (res.status !== 202) return null;
 			await new Promise((r) => setTimeout(r, POLL_MS));
