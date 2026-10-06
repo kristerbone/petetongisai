@@ -3,6 +3,7 @@ import { DeleteCommand, DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCo
 import { GetObjectCommand, NoSuchKey, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Resource } from 'sst';
 import { trackLine, type Form, type TrackName } from '$lib/track-ids/lines';
+import { dlog } from '$lib/debug-log';
 import { modalVoice } from './modal-voice';
 import { hitTrackIdLimit } from './rate-limit';
 import { LookupUnavailable, lookUpTrackName } from './track-names';
@@ -34,9 +35,11 @@ export async function trackIdLine(trackId: string, form: Form, ip: string): Prom
 	const key = `line#${trackId}#${form}`;
 	const { Item } = await db.send(new GetCommand({ TableName: Resource.TrackIds.name, Key: { key } }));
 
+	dlog('server', `trackIdLine ${trackId}/${form}: record`, Item ? { ready: !!Item.ready, renderId: Item.renderId, ageMs: Date.now() - (Item.startedAt ?? 0) } : 'none');
 	if (Item?.ready) {
 		const audio = await storedAudio(trackId, form);
 		if (audio) return { status: 'ready', audio };
+		dlog('server', `${trackId}/${form}: marked ready but S3 audio missing, re-rendering`);
 	} else if (Item?.renderId) {
 		const res = await modalVoice(`/renders/${Item.renderId}`);
 		if (res.status === 200) {
@@ -50,9 +53,11 @@ export async function trackIdLine(trackId: string, form: Form, ip: string): Prom
 			return { status: 'ready', audio };
 		}
 		if (res.status === 202 && Date.now() - Item.startedAt < STALE_RENDER_MS) return { status: 'rendering' };
+		dlog('server', `${trackId}/${form}: render ${Item.renderId} is ${res.status}, starting again`);
 		if (res.status === 402) return { status: 'generic', reason: 'off-air' };
 		// Failed, gone or stuck: render it again below
 	} else if (Item && Date.now() - Item.startedAt < STARTING_MS) {
+		dlog('server', `${trackId}/${form}: another request is starting the render`);
 		return { status: 'rendering' };
 	}
 
@@ -64,8 +69,14 @@ export async function trackIdLine(trackId: string, form: Form, ip: string): Prom
 		console.warn('Track name lookup failed', trackId, e.message);
 		return { status: 'generic', reason: 'unavailable' };
 	}
-	if (!name) return { status: 'generic', reason: 'no-match' };
-	if (!(await hitTrackIdLimit(ip)).allowed) return { status: 'generic', reason: 'rate-limited' };
+	if (!name) {
+		dlog('server', `${trackId}/${form}: generic (no name match)`);
+		return { status: 'generic', reason: 'no-match' };
+	}
+	if (!(await hitTrackIdLimit(ip)).allowed) {
+		dlog('server', `${trackId}/${form}: generic (rate-limited, ip ${ip})`);
+		return { status: 'generic', reason: 'rate-limited' };
+	}
 
 	const text = trackLine(trackId, form, name);
 	try {
@@ -80,7 +91,10 @@ export async function trackIdLine(trackId: string, form: Form, ip: string): Prom
 			})
 		);
 	} catch (e) {
-		if (e instanceof ConditionalCheckFailedException) return { status: 'rendering' };
+		if (e instanceof ConditionalCheckFailedException) {
+			dlog('server', `${trackId}/${form}: lost the race to start the render`);
+			return { status: 'rendering' };
+		}
 		throw e;
 	}
 
@@ -96,6 +110,7 @@ export async function trackIdLine(trackId: string, form: Form, ip: string): Prom
 		return { status: 'generic', reason: 'unavailable' };
 	}
 	const { id } = await res.json();
+	dlog('server', `${trackId}/${form}: render started`, { id, text });
 	await db.send(
 		new UpdateCommand({ TableName: Resource.TrackIds.name, Key: { key }, UpdateExpression: 'SET renderId = :id', ExpressionAttributeValues: { ':id': id } })
 	);

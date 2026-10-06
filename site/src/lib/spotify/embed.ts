@@ -1,3 +1,5 @@
+import { dlog } from '$lib/debug-log';
+
 /**
  * Spotify's iFrame API (ADR 0001): the embed plays the music; the page can load, play and pause
  * it and hear about playback, but never touches the audio itself.
@@ -79,6 +81,7 @@ export class SpotifyEmbed {
 		this.current = null;
 		if (this.controller) {
 			this.ready = new Promise((resolve) => this.controller!.addListener('ready', resolve));
+			dlog('embed', `loadUri ${uri}`);
 			this.controller.loadUri(uri);
 			return this.ready;
 		}
@@ -86,12 +89,21 @@ export class SpotifyEmbed {
 		this.ready = new Promise((resolve) => {
 			api.createController(this.el, { uri, width: '100%', height: 152 }, (c) => {
 				this.controller = c;
-				c.addListener('ready', () => resolve());
+				c.addListener('ready', () => {
+					dlog('embed', 'event ready');
+					resolve();
+				});
+				c.addListener('playback_started', (e) => dlog('embed', 'event playback_started', e.data));
 				c.addListener('playback_update', (e) => {
+					const d = e.data;
+					dlog('embed', `update ${d.isPaused ? 'PAUSED' : 'playing'}${d.isBuffering ? ' BUFFERING' : ''} ${(d.position / 1000).toFixed(1)}/${(d.duration / 1000).toFixed(1)}s hold=${this.holdPaused}`, d.playingURI);
 					this.watchForTrackStart(e.data);
 					this.watchForEnd(e.data);
 					const playing = !e.data.isPaused;
-					if (playing && this.holdPaused) c.pause();
+					if (playing && this.holdPaused) {
+						dlog('embed', 'update says playing while held: re-sending pause()');
+						c.pause();
+					}
 					if (playing !== this.playing) {
 						this.playing = playing;
 						this.events.onPlayingChange?.(playing);
@@ -109,6 +121,7 @@ export class SpotifyEmbed {
 		this.current = { uri, duration };
 		if (prev && prev.uri === uri && Math.abs(prev.duration - duration) < NEW_TRACK_DURATION_MS) return;
 		clearTimeout(this.endTimer);
+		dlog('embed', `TRACK START inferred (prev ${prev ? `${prev.uri} ${prev.duration}ms` : 'none'})`, { uri, duration });
 		this.events.onTrackStart?.(uri, duration);
 	}
 
@@ -116,7 +129,11 @@ export class SpotifyEmbed {
 	private watchForEnd({ isPaused, duration, position }: PlaybackUpdate) {
 		clearTimeout(this.endTimer);
 		if (!duration || position < duration - NEAR_END_MS) return;
-		this.endTimer = setTimeout(() => this.events.onEnded?.(), isPaused ? 0 : ENDED_AFTER_MS);
+		dlog('embed', `near end: onEnded in ${isPaused ? 0 : ENDED_AFTER_MS}ms`);
+		this.endTimer = setTimeout(() => {
+			dlog('embed', 'ENDED fired');
+			this.events.onEnded?.();
+		}, isPaused ? 0 : ENDED_AFTER_MS);
 	}
 
 	/**
@@ -124,8 +141,12 @@ export class SpotifyEmbed {
 	 * until resume(): Pete's Jingles use that. Without, someone can press play on the embed.
 	 */
 	pause({ hold = false } = {}) {
-		if (!this.playing) return;
+		if (!this.playing) {
+			dlog('embed', `pause(hold=${hold}) IGNORED: not playing`);
+			return;
+		}
 		this.holdPaused = hold;
+		dlog('embed', `pause(hold=${hold}) sent`);
 		this.controller?.pause();
 	}
 
@@ -135,9 +156,11 @@ export class SpotifyEmbed {
 	 */
 	resume() {
 		this.holdPaused = false;
+		dlog('embed', 'resume() sent');
 		this.controller?.resume();
 		for (const ms of [1200, 2500]) {
 			setTimeout(() => {
+				dlog('embed', `resume retry +${ms}ms: playing=${this.playing} hold=${this.holdPaused}`);
 				if (!this.playing && !this.holdPaused) this.controller?.play();
 			}, ms);
 		}
@@ -148,17 +171,20 @@ export class SpotifyEmbed {
 	 * a play() sent during the tap, and after that lets the page pause and resume the music.
 	 */
 	unlock() {
+		dlog('embed', 'unlock(): play() inside tap, hold on');
 		this.holdPaused = true;
 		this.controller?.play();
 	}
 
 	/** Let go of a hold without starting anything. */
 	release() {
+		dlog('embed', 'release()');
 		this.holdPaused = false;
 	}
 
 	/** May be ignored without a recent tap (Safari); the embed's own play button still works. */
 	play() {
+		dlog('embed', 'play() sent');
 		this.holdPaused = false;
 		this.controller?.play();
 	}
