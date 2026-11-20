@@ -1,0 +1,14 @@
+{
+	"card": "on",
+	"screen": {},
+	"videoLine": "The real show is on right now. Here's the Hot Mix while you listen: the best of the best from my shows. Turn it up.",
+	"dedicationIntro": "",
+	"playlist": "",
+	"playlistName": "",
+	"playlistUrl": "",
+	"dedicationUrl": "",
+	"caption": {
+		"x": "Live now on BBC Sounds: {bbc}. Our playlists run a week behind, so here's the Hot Mix, the best of the shows, while you listen. {dedication}",
+		"instagram": "The real show is on now. Our version of Pete brings you the Hot Mix. Link in bio."
+	}
+}

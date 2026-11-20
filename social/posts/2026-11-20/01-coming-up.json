@@ -1,0 +1,14 @@
+{
+	"card": "up",
+	"screen": { "sub": "Pete · Friday night", "ticker": "Pete Tong · Friday night · BBC Sounds · Dedications open" },
+	"videoLine": "It's Friday night. The real show's on later, so here's last week's tracklist to warm you up. Press play, pour something, and get ready.",
+	"dedicationIntro": "",
+	"playlist": "",
+	"playlistName": "",
+	"playlistUrl": "",
+	"dedicationUrl": "",
+	"caption": {
+		"x": "Pete's on tonight at {time}. We're a week behind on playlists, so here's last week's to warm up. Press play, hear Pete introduce it, send it on. {dedication}",
+		"instagram": "Pete's on tonight. Last week's tracklist is ready as a warm-up, with a synthesised Pete to introduce it. Link in bio."
+	}
+}
