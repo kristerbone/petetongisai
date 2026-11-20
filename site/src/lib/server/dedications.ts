@@ -14,8 +14,13 @@ export type Dedication = {
 	music: string | null;
 	createdAt: number;
 	lastOpenedAt: number | null;
-	/** DynamoDB TTL (epoch seconds), pushed back on every open */
-	fadesAt: number;
+	/** DynamoDB TTL (epoch seconds), pushed back on every open. Absent on a permanent Dedication. */
+	fadesAt?: number;
+	/**
+	 * Set by scripts/dedicate.mjs for the project's own posts: no `fadesAt`, so it never Fades, and
+	 * the page offers no remove button. Visitors can't make one; only that script (run by us) does.
+	 */
+	permanent?: boolean;
 };
 
 const fadeDays = () => fadeAfterDays(env.FADE_AFTER_DAYS);
@@ -71,16 +76,16 @@ export async function getDedication(id: string): Promise<Dedication | null> {
 	return { ...Item, music: Item.music ?? Item.spotifyUri ?? null } as Dedication;
 }
 
-/** Opening a Dedication pushes its Fade back by the full period. */
-export async function markOpened(id: string) {
+/** Opening a Dedication pushes its Fade back by the full period; a permanent one has none to push. */
+export async function markOpened(id: string, permanent = false) {
 	const now = Date.now();
 	await db.send(
 		new UpdateCommand({
 			TableName: Resource.Dedications.name,
 			Key: { id },
-			UpdateExpression: 'SET lastOpenedAt = :now, fadesAt = :fade',
+			UpdateExpression: permanent ? 'SET lastOpenedAt = :now' : 'SET lastOpenedAt = :now, fadesAt = :fade',
 			ConditionExpression: 'attribute_exists(id)',
-			ExpressionAttributeValues: { ':now': now, ':fade': fadesAt(now, fadeDays()) }
+			ExpressionAttributeValues: permanent ? { ':now': now } : { ':now': now, ':fade': fadesAt(now, fadeDays()) }
 		})
 	);
 }

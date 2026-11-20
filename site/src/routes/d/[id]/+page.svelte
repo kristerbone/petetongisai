@@ -196,9 +196,11 @@
 				</form>
 			{/if}
 			<p class="dedication-own"><a class="speak-btn" href="/">Send your own Dedication</a></p>
-			<form method="POST" action="?/remove" class="dedication-remove">
-				<button>If this offended you, click here to remove it</button>
-			</form>
+			{#if !data.permanent}
+				<form method="POST" action="?/remove" class="dedication-remove">
+					<button>If this offended you, click here to remove it</button>
+				</form>
+			{/if}
 		{/if}
 	</div>
 
