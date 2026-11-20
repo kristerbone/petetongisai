@@ -1,0 +1,142 @@
+{
+  "account": "petetongisai",
+  "platform": "instagram",
+  "status": "draft",
+  "planned_date": "2026-11-20",
+  "planned_window": "Fri 22:00–00:00 Europe/London (Pete Tong, BBC Radio 1)",
+  "bio": {
+    "link": "https://open.spotify.com/user/31z6eksx5qfpag7yj26cof6rdjby",
+    "text": "AI-curated playlists from Pete Tong's Radio 1 shows. Fan project, not affiliated with Pete Tong or the BBC."
+  },
+  "hashtag_limit": 5,
+  "posts": [
+    {
+      "order": 1,
+      "id": "top20",
+      "playlist": "Pete Tong Is AI presents… The Top 20",
+      "spotify_url": "https://open.spotify.com/playlist/1KjjOmUPCFF1RYZwrK8GtA",
+      "image": "images/01-top20.jpg",
+      "caption": "The chart 📈 The 20 most-streamed tracks from Pete Tong's Radio 1 shows, Aug–Nov 2026, from No. 1 to No. 20. Playlist link in bio. AI-curated fan project, not affiliated with Pete Tong or the BBC.",
+      "hashtags": [
+        "#PeteTong",
+        "#ItsAIGonePete",
+        "#Radio1Dance",
+        "#HouseMusic",
+        "#DanceMusic"
+      ],
+      "status": "draft"
+    },
+    {
+      "order": 2,
+      "id": "mostplayed",
+      "playlist": "Pete Tong Is AI presents… Most Played on Air",
+      "spotify_url": "https://open.spotify.com/playlist/6928VNeBa18xoMPmRoisNe",
+      "image": "images/02-mostplayed.jpg",
+      "caption": "The tracks Pete couldn't stop playing 🔁 His 20 most-played on air, Aug–Nov 2026. Link in bio. AI-curated fan project.",
+      "hashtags": [
+        "#PeteTong",
+        "#ItsAIGonePete",
+        "#Radio1Dance",
+        "#HouseMusic",
+        "#DJ"
+      ],
+      "status": "draft"
+    },
+    {
+      "order": 3,
+      "id": "hiddengems",
+      "playlist": "Pete Tong Is AI presents… Hidden Gems",
+      "spotify_url": "https://open.spotify.com/playlist/6zcnaDk99eKtzv3LCr4BCc",
+      "image": "images/03-hiddengems.jpg",
+      "caption": "Dig deeper 💎 The 20 least-streamed tracks Pete played this autumn, so you might not know them yet. Link in bio. AI-curated fan project.",
+      "hashtags": [
+        "#PeteTong",
+        "#ItsAIGonePete",
+        "#Radio1Dance",
+        "#DeepHouse",
+        "#Underground"
+      ],
+      "status": "draft"
+    },
+    {
+      "order": 4,
+      "id": "oneplay",
+      "playlist": "Pete Tong Is AI presents… One-Play Wonders",
+      "spotify_url": "https://open.spotify.com/playlist/3kQRqPyXcarHvFULN1Tuwm",
+      "image": "images/04-oneplay.jpg",
+      "caption": "Played once, never forgotten ✨ Tracks that got just one spin on the show. Link in bio. AI-curated fan project.",
+      "hashtags": [
+        "#PeteTong",
+        "#ItsAIGonePete",
+        "#Radio1Dance",
+        "#HouseMusic",
+        "#NewMusic"
+      ],
+      "status": "draft"
+    },
+    {
+      "order": 5,
+      "id": "ibiza",
+      "playlist": "Pete Tong Is AI presents… Ibiza Is Calling",
+      "spotify_url": "https://open.spotify.com/playlist/1hUFLWrBkbuqgyVBegDXQ4",
+      "image": "images/05-ibiza.jpg",
+      "caption": "Still dreaming of the White Isle 🌅 The best of Pete's Ibiza Is Calling shows, summer 2026. Link in bio. AI-curated fan project.",
+      "hashtags": [
+        "#PeteTong",
+        "#ItsAIGonePete",
+        "#Radio1Dance",
+        "#Ibiza",
+        "#IbizaMusic"
+      ],
+      "status": "draft"
+    },
+    {
+      "order": 6,
+      "id": "hotmix",
+      "playlist": "Pete Tong Is AI presents… Hot Mix Heroes",
+      "spotify_url": "https://open.spotify.com/playlist/2WZmevNEIVrUPxy8vRFYhF",
+      "image": "images/06-hotmix.jpg",
+      "caption": "Tracks from the guest DJs who took over the Hot Mix 🔥 Dusky, ANOTR, Adam Beyer and more. Link in bio. AI-curated fan project.",
+      "hashtags": [
+        "#PeteTong",
+        "#ItsAIGonePete",
+        "#Radio1Dance",
+        "#Techno",
+        "#Dusky"
+      ],
+      "status": "draft"
+    },
+    {
+      "order": 7,
+      "id": "class2026",
+      "playlist": "Pete Tong Is AI presents… Class of 2026",
+      "spotify_url": "https://open.spotify.com/playlist/7tiuq8tvhpae0h0jHtkPqY",
+      "image": "images/07-class2026.jpg",
+      "caption": "This year's freshest 🆕 The top 2026 releases Pete played on Radio 1. Link in bio. AI-curated fan project.",
+      "hashtags": [
+        "#PeteTong",
+        "#ItsAIGonePete",
+        "#Radio1Dance",
+        "#NewMusicFriday",
+        "#NewMusic"
+      ],
+      "status": "draft"
+    },
+    {
+      "order": 8,
+      "id": "throwbacks",
+      "playlist": "Pete Tong Is AI presents… The Throwbacks",
+      "spotify_url": "https://open.spotify.com/playlist/6jG3l9ELi7ZP2mNvMX3QNu",
+      "image": "images/08-throwbacks.jpg",
+      "caption": "Back to where it started ⏪ The 20 oldest records Pete dropped this autumn, from Chicago to Cybotron. Link in bio. AI-curated fan project.",
+      "hashtags": [
+        "#PeteTong",
+        "#ItsAIGonePete",
+        "#Radio1Dance",
+        "#ClassicHouse",
+        "#90sHouse"
+      ],
+      "status": "draft"
+    }
+  ]
+}
