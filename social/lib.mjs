@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url';
 
 export const here = path.dirname(fileURLToPath(import.meta.url));
 export const postsDir = path.join(here, 'posts');
-// up/on/off are the animated cards export.mjs renders; image is a ready-made picture (post.image, relative to the post file)
-export const CARDS = { up: 'Coming up', on: 'On air', off: 'Off air', image: 'Image' };
+// up/on/off/playlist are the animated cards export.mjs renders; image is a ready-made picture (post.image, relative to the post file)
+export const CARDS = { up: 'Coming up', on: 'On air', off: 'Off air', playlist: 'Playlist', image: 'Image' };
 export const PLATFORMS = ['x', 'instagram'];
 export const LIMITS = { x: 280, intro: 200 };
 

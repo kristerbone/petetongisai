@@ -1,11 +1,14 @@
 {
-	"card": "image",
+	"card": "playlist",
 	"platforms": [
 		"instagram"
 	],
-	"screen": {},
-	"image": "../instagram/2026-11-20/images/02-mostplayed.jpg",
-	"videoLine": "",
+	"screen": {
+		"title": "{playlistName}",
+		"sub": "7 Aug – 6 Nov 2026"
+	},
+	"image": "",
+	"videoLine": "The twenty records I just couldn't stop playing. Over and over, like a very polite broken record. Link in bio, and I'll introduce them.",
 	"dedicationIntro": "The records I just couldn't stop playing. Twenty of them, round and round, like a very polite broken record. Press play and see if you can stop yourself.",
 	"playlist": "his-20-most-played-on-air",
 	"playlistName": "",

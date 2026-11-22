@@ -1,11 +1,14 @@
 {
-	"card": "image",
+	"card": "playlist",
 	"platforms": [
 		"instagram"
 	],
-	"screen": {},
-	"image": "../instagram/2026-11-20/images/03-hiddengems.jpg",
-	"videoLine": "",
+	"screen": {
+		"title": "{playlistName}",
+		"sub": "7 Aug – 6 Nov 2026"
+	},
+	"image": "",
+	"videoLine": "Twenty records you probably haven't heard yet. Hidden gems, dug up by a computer pretending to be me. Link in bio, and I'll introduce them.",
 	"dedicationIntro": "Twenty records you probably haven't heard yet. Dug up from the back of the crate by a computer pretending to be me. Press play and be the first of your mates to know.",
 	"playlist": "hidden-gems",
 	"playlistName": "",

@@ -1,11 +1,14 @@
 {
-	"card": "image",
+	"card": "playlist",
 	"platforms": [
 		"instagram"
 	],
-	"screen": {},
-	"image": "../instagram/2026-11-20/images/06-hotmix.jpg",
-	"videoLine": "",
+	"screen": {
+		"title": "{playlistName}",
+		"sub": "7 Aug – 6 Nov 2026"
+	},
+	"image": "",
+	"videoLine": "The Hot Mix: the guests take over and I get out of the way. Link in bio, and I'll introduce it, then I'll be quiet.",
 	"dedicationIntro": "The Hot Mix, where the guests take over and I get out of the way. Big tunes, bigger drops, and absolutely no talking from me after this. Press play.",
 	"playlist": "hot-mix-heroes",
 	"playlistName": "",

@@ -1,11 +1,14 @@
 {
-	"card": "image",
+	"card": "playlist",
 	"platforms": [
 		"instagram"
 	],
-	"screen": {},
-	"image": "../instagram/2026-11-20/images/05-ibiza.jpg",
-	"videoLine": "",
+	"screen": {
+		"title": "{playlistName}",
+		"sub": "Summer 2026"
+	},
+	"image": "",
+	"videoLine": "Ibiza is calling, and it's not even summer. Close your eyes and press play. Link in bio, and I'll take you there.",
 	"dedicationIntro": "Close your eyes. Ibiza is calling, the sun's coming up, and it's definitely not November. Press play and pretend.",
 	"playlist": "ibiza-is-calling",
 	"playlistName": "",

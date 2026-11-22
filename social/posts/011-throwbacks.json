@@ -1,11 +1,14 @@
 {
-	"card": "image",
+	"card": "playlist",
 	"platforms": [
 		"instagram"
 	],
-	"screen": {},
-	"image": "../instagram/2026-11-20/images/08-throwbacks.jpg",
-	"videoLine": "",
+	"screen": {
+		"title": "{playlistName}",
+		"sub": "7 Aug – 6 Nov 2026"
+	},
+	"image": "",
+	"videoLine": "Back to where it all began. The old ones, the proper ones. Link in bio, and I'll take you down memory lane.",
 	"dedicationIntro": "Back to where it all began. The old ones, the proper ones, still sounding good. Press play and take a trip down memory lane. I'll wait.",
 	"playlist": "the-throwbacks",
 	"playlistName": "",

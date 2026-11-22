@@ -25,7 +25,7 @@ One-off setup (needs Node and `ffmpeg`, e.g. `brew install ffmpeg`): `npm instal
 
 | Field | What it is |
 |---|---|
-| `card` | `up` (Coming up), `on` (On air), `off` (Off air): which animated card. Or `image`: a ready-made picture, with `image` set to its path (relative to the post file); `export` skips it and no `videoLine` is needed. |
+| `card` | `up` (Coming up), `on` (On air), `off` (Off air) or `playlist` (the pink playlist card with a spinning turntable; set `screen.title` to `{playlistName}` and `screen.sub` to the date line): which animated card. Or `image`: a ready-made picture, with `image` set to its path (relative to the post file); `export` skips it and no `videoLine` is needed. |
 | `platforms` | Which captions the post needs: `["x", "instagram"]`, or `["instagram"]` for no X caption. |
 | `hashtags` | List, shown by `review` (Instagram's limit is 5; `review` flags more). |
 | `notes` | List of things to check before posting; shown by `review`. |

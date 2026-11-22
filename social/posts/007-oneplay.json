@@ -1,11 +1,14 @@
 {
-	"card": "image",
+	"card": "playlist",
 	"platforms": [
 		"instagram"
 	],
-	"screen": {},
-	"image": "../instagram/2026-11-20/images/04-oneplay.jpg",
-	"videoLine": "",
+	"screen": {
+		"title": "{playlistName}",
+		"sub": "7 Aug – 6 Nov 2026"
+	},
+	"image": "",
+	"videoLine": "One spin on the show, and never again. These are the one-play wonders. Link in bio, and I'll introduce them before they're gone.",
 	"dedicationIntro": "These got one spin on the show, and one spin only. No pressure. Listen closely, because they might not come round again. Press play.",
 	"playlist": "one-play-wonders",
 	"playlistName": "",
