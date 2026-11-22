@@ -3,11 +3,13 @@
 	"platforms": [
 		"instagram"
 	],
+	"screen": {},
 	"image": "../instagram/2026-11-20/images/07-class2026.jpg",
+	"videoLine": "",
+	"dedicationIntro": "The freshest records of 2026, fresh off the radio. If you're early, you're early. Press play and find your next favourite.",
 	"playlist": "class-of-2026",
 	"playlistName": "",
 	"playlistUrl": "",
-	"dedicationIntro": "",
 	"dedicationUrl": "",
 	"caption": {
 		"x": "",
@@ -19,5 +21,6 @@
 		"#Radio1Dance",
 		"#NewMusicFriday",
 		"#NewMusic"
-	]
+	],
+	"notes": []
 }

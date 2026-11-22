@@ -3,11 +3,13 @@
 	"platforms": [
 		"instagram"
 	],
+	"screen": {},
 	"image": "../instagram/2026-11-20/images/08-throwbacks.jpg",
+	"videoLine": "",
+	"dedicationIntro": "Back to where it all began. The old ones, the proper ones, still sounding good. Press play and take a trip down memory lane. I'll wait.",
 	"playlist": "the-throwbacks",
 	"playlistName": "",
 	"playlistUrl": "",
-	"dedicationIntro": "",
 	"dedicationUrl": "",
 	"caption": {
 		"x": "",

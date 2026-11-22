@@ -3,11 +3,13 @@
 	"platforms": [
 		"instagram"
 	],
+	"screen": {},
 	"image": "../instagram/2026-11-20/images/04-oneplay.jpg",
+	"videoLine": "",
+	"dedicationIntro": "These got one spin on the show, and one spin only. No pressure. Listen closely, because they might not come round again. Press play.",
 	"playlist": "one-play-wonders",
 	"playlistName": "",
 	"playlistUrl": "",
-	"dedicationIntro": "",
 	"dedicationUrl": "",
 	"caption": {
 		"x": "",
@@ -19,5 +21,6 @@
 		"#Radio1Dance",
 		"#HouseMusic",
 		"#NewMusic"
-	]
+	],
+	"notes": []
 }

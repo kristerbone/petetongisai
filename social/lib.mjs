@@ -16,6 +16,23 @@ export const playlists = JSON.parse(readFileSync(path.join(here, 'playlists.json
 /** Settings shared by every post: show time, BBC link (config.json). */
 export const config = JSON.parse(readFileSync(path.join(here, 'config.json'), 'utf8'));
 
+/** Every post file has exactly these fields, in this order (`npm run format` enforces it); new posts start from these values. */
+export const POST_DEFAULTS = {
+	card: 'up',
+	platforms: ['x', 'instagram'],
+	screen: {},
+	image: '',
+	videoLine: '',
+	dedicationIntro: '',
+	playlist: '',
+	playlistName: '',
+	playlistUrl: '',
+	dedicationUrl: '',
+	caption: { x: '', instagram: '' },
+	hashtags: [],
+	notes: []
+};
+
 const POST_FILE = /^(\d{3})-.+\.json$/;
 
 /** Every post (posts/NNN-name.json), in number order. A post's "playlist" key fills in its playlistName and playlistUrl unless they are set. */
@@ -72,6 +89,7 @@ export function problems(post) {
 		if (!post[k]) out.push(`${k} is empty`);
 		else if (post[k].length > LIMITS.intro) out.push(`${k} is over ${LIMITS.intro} characters (the site's Intro limit)`);
 	}
+	if ((post.hashtags?.length ?? 0) > 5) out.push('more than 5 hashtags (Instagram allows 5)');
 	if (!post.playlistName) out.push('playlistName is empty');
 	if (!post.playlistUrl) out.push('playlistUrl is empty');
 	if (!post.dedicationUrl) out.push('dedicationUrl is empty');

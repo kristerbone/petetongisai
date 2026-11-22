@@ -3,11 +3,13 @@
 	"platforms": [
 		"instagram"
 	],
+	"screen": {},
 	"image": "../instagram/2026-11-20/images/01-top20.jpg",
+	"videoLine": "",
+	"dedicationIntro": "It's the Top 20, the chart of everything I've been playing. Start at number one and work your way down. Not really me, mind, but the tunes are. Press play.",
 	"playlist": "the-top-20",
 	"playlistName": "",
 	"playlistUrl": "",
-	"dedicationIntro": "",
 	"dedicationUrl": "",
 	"caption": {
 		"x": "",

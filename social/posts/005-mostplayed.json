@@ -3,11 +3,13 @@
 	"platforms": [
 		"instagram"
 	],
+	"screen": {},
 	"image": "../instagram/2026-11-20/images/02-mostplayed.jpg",
+	"videoLine": "",
+	"dedicationIntro": "The records I just couldn't stop playing. Twenty of them, round and round, like a very polite broken record. Press play and see if you can stop yourself.",
 	"playlist": "his-20-most-played-on-air",
 	"playlistName": "",
 	"playlistUrl": "",
-	"dedicationIntro": "",
 	"dedicationUrl": "",
 	"caption": {
 		"x": "",

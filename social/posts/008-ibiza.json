@@ -3,11 +3,13 @@
 	"platforms": [
 		"instagram"
 	],
+	"screen": {},
 	"image": "../instagram/2026-11-20/images/05-ibiza.jpg",
+	"videoLine": "",
+	"dedicationIntro": "Close your eyes. Ibiza is calling, the sun's coming up, and it's definitely not November. Press play and pretend.",
 	"playlist": "ibiza-is-calling",
 	"playlistName": "",
 	"playlistUrl": "",
-	"dedicationIntro": "",
 	"dedicationUrl": "",
 	"caption": {
 		"x": "",
@@ -19,5 +21,6 @@
 		"#Radio1Dance",
 		"#Ibiza",
 		"#IbizaMusic"
-	]
+	],
+	"notes": []
 }

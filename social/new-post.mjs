@@ -4,7 +4,7 @@
 // starts from a blank template. Then edit the file and run `npm run review -- <number>`.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { loadPosts, postsDir, CARDS } from './lib.mjs';
+import { loadPosts, postsDir, CARDS, POST_DEFAULTS } from './lib.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name) => {
@@ -26,21 +26,11 @@ if (from) {
 	if (!src) throw new Error(`No post "${from}"`);
 	post = JSON.parse(readFileSync(path.join(postsDir, `${src.id}.json`), 'utf8'));
 	Object.assign(post, { playlist: '', playlistName: '', playlistUrl: '', dedicationIntro: '', dedicationUrl: '' });
-	delete post.notes;
+	post.notes = [];
 } else {
 	const card = flag('card') ?? 'up';
 	if (!CARDS[card]) throw new Error(`--card must be one of ${Object.keys(CARDS).join(', ')}`);
-	post = {
-		card,
-		screen: {},
-		videoLine: '',
-		dedicationIntro: '',
-		playlist: '',
-		playlistName: '',
-		playlistUrl: '',
-		dedicationUrl: '',
-		caption: { x: '', instagram: '' }
-	};
+	post = { ...structuredClone(POST_DEFAULTS), card };
 }
 writeFileSync(path.join(postsDir, `${id}.json`), JSON.stringify(post, null, '\t') + '\n');
 console.log(`Created posts/${id}.json. Edit it, then: npm run review -- ${id.slice(0, 3)}`);

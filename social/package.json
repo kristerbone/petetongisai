@@ -8,7 +8,8 @@
     "new": "node new-post.mjs",
     "dedicate": "node dedicate.mjs",
     "audio": "node render-audio.mjs",
-    "export": "node export.mjs"
+    "export": "node export.mjs",
+    "format": "node format-posts.mjs"
   },
   "devDependencies": {
     "playwright": "1.49.1"

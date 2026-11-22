@@ -20,14 +20,14 @@ One-off setup (needs Node and `ffmpeg`, e.g. `brew install ffmpeg`): `npm instal
 
 ## What's in a post
 
-`posts/NNN-name.json`. For example `002-on-air.json`:
+`posts/NNN-name.json`. Every post has the same fields in the same order, empty ones included; after editing by hand run `npm run format` to restore that (it adds missing fields and reorders). For example `002-on-air.json`:
 
 | Field | What it is |
 |---|---|
 | `card` | `up` (Coming up), `on` (On air), `off` (Off air): which animated card. Or `image`: a ready-made picture, with `image` set to its path (relative to the post file); `export` skips it and no `videoLine` is needed. |
-| `platforms` | Optional, default both: `["instagram"]` means no X caption is needed. |
-| `hashtags` | Optional list, shown by `review` (Instagram's limit is 5). |
-| `notes` | Optional list of things to check before posting; shown by `review`. |
+| `platforms` | Which captions the post needs: `["x", "instagram"]`, or `["instagram"]` for no X caption. |
+| `hashtags` | List, shown by `review` (Instagram's limit is 5; `review` flags more). |
+| `notes` | List of things to check before posting; shown by `review`. |
 | `screen` | Optional wording on the card: `sub` (the line under the title) and `ticker` (Coming up only). Leave `{}` for the defaults. |
 | `videoLine` | What Pete says **in the video**, the hook. Under 200 characters. |
 | `dedicationIntro` | What Pete says **in the Dedication**, the Intro people hear on the site before the music. Under 200 characters. |

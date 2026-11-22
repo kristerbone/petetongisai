@@ -3,11 +3,13 @@
 	"platforms": [
 		"instagram"
 	],
+	"screen": {},
 	"image": "../instagram/2026-11-20/images/03-hiddengems.jpg",
+	"videoLine": "",
+	"dedicationIntro": "Twenty records you probably haven't heard yet. Dug up from the back of the crate by a computer pretending to be me. Press play and be the first of your mates to know.",
 	"playlist": "hidden-gems",
 	"playlistName": "",
 	"playlistUrl": "",
-	"dedicationIntro": "",
 	"dedicationUrl": "",
 	"caption": {
 		"x": "",

@@ -1,8 +1,13 @@
 {
 	"card": "off",
+	"platforms": [
+		"x",
+		"instagram"
+	],
 	"screen": {
 		"sub": "Same time next Friday"
 	},
+	"image": "",
 	"videoLine": "That's the show done for another week. Tonight's tracklist lands next Friday, but here's one from the vault. Don't switch off yet.",
 	"dedicationIntro": "",
 	"playlist": "",
@@ -12,5 +17,13 @@
 	"caption": {
 		"x": "That's a wrap. Tonight's tracklist lands next Friday, we're a week behind, sorry. One from the vault in the meantime: {dedication}",
 		"instagram": "Show's done. Tonight's playlist arrives next week. Here's one from the vault. Link in bio."
-	}
+	},
+	"hashtags": [
+		"#PeteTong",
+		"#ItsAIGonePete",
+		"#Radio1Dance",
+		"#HouseMusic",
+		"#DJ"
+	],
+	"notes": []
 }
