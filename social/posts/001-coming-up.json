@@ -1,6 +1,9 @@
 {
 	"card": "up",
-	"screen": { "sub": "Pete · Friday night", "ticker": "Pete Tong · Friday night · BBC Sounds · Dedications open" },
+	"screen": {
+		"sub": "Pete · Friday night",
+		"ticker": "Pete Tong · Friday night · BBC Sounds · Dedications open"
+	},
 	"videoLine": "It's Friday night. The real show's on later, so here's last week's tracklist to warm you up. Press play, pour something, and get ready.",
 	"dedicationIntro": "",
 	"playlist": "",

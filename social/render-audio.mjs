@@ -1,5 +1,5 @@
-// Render each post's videoLine in Pete's (synthesised) voice to audio/<show>/<post>.wav:
-//   node render-audio.mjs [show] [--force] [post-id ...]     (default show: the newest)
+// Render each post's videoLine in Pete's (synthesised) voice to audio/<post>.wav:
+//   node render-audio.mjs [--force] [001 002 ...]     (default: all posts that have a videoLine)
 // Uses the voice service with the Modal proxy token from the repo-root .env, the same way
 // site/scripts/render-lines.mjs does. Skips posts that already have a file unless --force or named.
 // If a line changed since its audio was rendered, re-run with --force or the post id. Needs ffmpeg.
@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { audioPath, loadShow, pickShow } from './lib.mjs';
+import { audioPath, pickPosts } from './lib.mjs';
 
 process.loadEnvFile(new URL('../.env', import.meta.url).pathname);
 const { MODAL_VOICE_URL, MODAL_PROXY_TOKEN_ID, MODAL_PROXY_TOKEN_SECRET } = process.env;
@@ -15,9 +15,7 @@ const headers = { 'Modal-Key': MODAL_PROXY_TOKEN_ID, 'Modal-Secret': MODAL_PROXY
 const REFS = ['ref4', 'ref3', 'ref2']; // each is a different take; try in turn if words get dropped
 const args = process.argv.slice(2);
 const force = args.includes('--force');
-const [showId, rest] = pickShow(args.filter((a) => !a.startsWith('--')));
-const only = rest;
-const { posts } = loadShow(showId);
+const [posts, , explicit] = pickPosts(args.filter((a) => !a.startsWith('--')));
 
 async function render(text, ref) {
 	const start = await fetch(`${MODAL_VOICE_URL}/renders`, {
@@ -39,13 +37,12 @@ async function render(text, ref) {
 }
 
 for (const post of posts) {
-	if (only.length && !only.includes(post.id)) continue;
 	if (!post.videoLine) {
 		console.log(`${post.id}: no videoLine, skipping`);
 		continue;
 	}
-	const target = audioPath(showId, post.id);
-	if (existsSync(target) && !force && !only.includes(post.id)) {
+	const target = audioPath(post.id);
+	if (existsSync(target) && !force && !explicit) {
 		console.log(`${post.id}: exists, skipping`);
 		continue;
 	}

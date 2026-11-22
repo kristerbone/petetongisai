@@ -1,5 +1,5 @@
-// Render each post's card to MP4 (square and story), with Pete's voice if audio/<show>/<post>.wav exists:
-//   node export.mjs [show] [--seconds N] [post-id ...]     (default show: the newest)
+// Render each post's card to MP4 (square and story), with Pete's voice if audio/<post>.wav exists:
+//   node export.mjs [--seconds N] [001 002 ...]     (default: every animated post)
 // Needs: npm install, npx playwright install chromium, and ffmpeg on the PATH.
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
@@ -7,14 +7,13 @@ import { createServer } from 'node:http';
 import { existsSync } from 'node:fs';
 import { readFile, mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
-import { audioPath, fill, hasAudio, here, loadShow, pickShow } from './lib.mjs';
+import { audioPath, fill, hasAudio, here, pickPosts } from './lib.mjs';
 
 const argv = process.argv.slice(2);
 const si = argv.indexOf('--seconds');
 const seconds = si >= 0 ? Number(argv[si + 1]) : 12; // 12s = one full ticker loop
-const [showId, only] = pickShow(argv.filter((a, i) => i !== si && i !== si + 1));
-const { posts, show } = loadShow(showId);
-const out = path.join(here, 'exports', showId);
+const [posts] = pickPosts(argv.filter((a, i) => i !== si && i !== si + 1));
+const out = path.join(here, 'exports');
 const formats = {
 	square: { w: 1080, h: 1080 }, // X, Instagram feed
 	story: { w: 1080, h: 1920 } // Reels, Stories
@@ -39,16 +38,16 @@ const tmp = path.join(out, '.tmp');
 const browser = await chromium.launch();
 
 for (const post of posts) {
-	if (only.length && !only.includes(post.id)) continue;
+	if (post.card === 'image') continue; // a ready-made picture: nothing to render
 	// With Pete's voice, it starts 1s in and the clip runs until ~2.5s after he finishes, or `seconds` if longer.
-	const voice = audioPath(showId, post.id);
-	const withVoice = hasAudio(showId, post.id);
+	const voice = audioPath(post.id);
+	const withVoice = hasAudio(post.id);
 	const voiceLen = withVoice
 		? Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', voice]).toString())
 		: 0;
 	const length = withVoice ? Math.max(seconds, Math.ceil(voiceLen + 3.5)) : seconds;
 	// On-screen text can use the same {placeholders} as captions, e.g. "sub": "{playlistName}"
-	const screen = Object.fromEntries(Object.entries(post.screen ?? {}).map(([k, v]) => [k, fill(v, post, show)]));
+	const screen = Object.fromEntries(Object.entries(post.screen ?? {}).map(([k, v]) => [k, fill(v, post)]));
 	const params = new URLSearchParams({ card: post.card, ...screen });
 
 	for (const [fmt, size] of Object.entries(formats)) {

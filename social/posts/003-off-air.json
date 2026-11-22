@@ -1,6 +1,8 @@
 {
 	"card": "off",
-	"screen": { "sub": "Same time next Friday" },
+	"screen": {
+		"sub": "Same time next Friday"
+	},
 	"videoLine": "That's the show done for another week. Tonight's tracklist lands next Friday, but here's one from the vault. Don't switch off yet.",
 	"dedicationIntro": "",
 	"playlist": "",

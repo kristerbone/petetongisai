@@ -1,0 +1,26 @@
+{
+	"card": "image",
+	"platforms": [
+		"instagram"
+	],
+	"image": "../instagram/2026-11-20/images/03-hiddengems.jpg",
+	"playlist": "hidden-gems",
+	"playlistName": "",
+	"playlistUrl": "",
+	"dedicationIntro": "",
+	"dedicationUrl": "",
+	"caption": {
+		"x": "",
+		"instagram": "Dig deeper 💎 The 20 least-streamed tracks Pete played this autumn, so you might not know them yet. Link in bio. AI-curated fan project."
+	},
+	"hashtags": [
+		"#PeteTong",
+		"#ItsAIGonePete",
+		"#Radio1Dance",
+		"#DeepHouse",
+		"#Underground"
+	],
+	"notes": [
+		"Check 'least-streamed' against the data the playlist was built from."
+	]
+}

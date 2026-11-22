@@ -1,0 +1,27 @@
+{
+	"card": "image",
+	"platforms": [
+		"instagram"
+	],
+	"image": "../instagram/2026-11-20/images/01-top20.jpg",
+	"playlist": "the-top-20",
+	"playlistName": "",
+	"playlistUrl": "",
+	"dedicationIntro": "",
+	"dedicationUrl": "",
+	"caption": {
+		"x": "",
+		"instagram": "The chart 📈 The 20 most-streamed tracks from Pete Tong's Radio 1 shows, Aug–Nov 2026, from No. 1 to No. 20. Playlist link in bio. AI-curated fan project, not affiliated with Pete Tong or the BBC."
+	},
+	"hashtags": [
+		"#PeteTong",
+		"#ItsAIGonePete",
+		"#Radio1Dance",
+		"#HouseMusic",
+		"#DanceMusic"
+	],
+	"notes": [
+		"Check 'most-streamed' against the data the playlist was built from, and say where streams were counted.",
+		"Only this post carries the 'not affiliated with Pete Tong or the BBC' line; it belongs in the bio too."
+	]
+}
