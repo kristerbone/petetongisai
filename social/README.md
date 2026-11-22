@@ -8,6 +8,7 @@ Posts for the @petetongisai accounts on X and Instagram. Each post is one number
 npm run new -- spring-mix --from 004   # 1. next numbered post (012-spring-mix.json), copied from 004
 # 2. edit posts/012-spring-mix.json: captions, Pete's lines, playlist (see below)
 npm run review -- 012                  # 3. read it in one place; lists what's missing
+npm run preview -- 012                 # (any time) a review page: image or video, captions, intro audio
 npm run dedicate -- 012                # 4. render the Dedication's Intro, to listen to
 npm run dedicate -- 012 --create       # 5. make the permanent Dedication on production; link saved into the post
 npm run audio -- 012                   # 6. render Pete's video line (uses a little Modal credit)
@@ -59,6 +60,7 @@ Posts that already have a `dedicationUrl` are skipped, so re-running never makes
 - `playlists.json`: the Spotify account's playlists.
 - `instagram/`: Jennifer's draft Instagram images and original notes; posts 004 onward use her images.
 - `status-animations.html`: the three CSS-animated cards. Open it to preview; the Format buttons switch between square and 9:16. `?card=up|on|off` shows one card full size.
+- `preview.mjs` builds `preview/index.html` (git-ignored) for reviewing posts: open it through a local web server rooted at the repo, e.g. `http://localhost:8080/social/preview/index.html`.
 - `lib.mjs`, `review.mjs`, `new-post.mjs`, `dedicate.mjs` (with `site/scripts/dedicate.mjs`), `render-audio.mjs`, `export.mjs`: the scripts behind the commands above.
 - `audio/` and `exports/`: generated (git-ignored; regenerate any time).
 

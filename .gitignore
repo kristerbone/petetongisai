@@ -6,3 +6,4 @@ dist/
 *.swp
 social/exports/
 social/audio/
+social/preview/
